@@ -234,8 +234,8 @@
     <div class="metric"><div class="metric-label">Overall Accuracy</div><div class="metric-value orange" id="m-overall-acc">54.3%</div><div class="metric-sub">avg across players</div></div>
   </div>
 
-  <!-- Leaderboard + Accuracy -->
-  <div class="grid-2">
+  <!-- Leaderboard + Accuracy + Player Picks -->
+  <div class="grid-3">
     <div class="card">
       <div class="card-title">🏆 Standings</div>
       <div id="leaderboard"></div>
@@ -244,6 +244,21 @@
       <div class="card-title">🎯 Winner Prediction Accuracy</div>
       <div class="acc-row header"><span>Player</span><span>W/G</span><span>%</span><span>Accuracy</span></div>
       <div id="accuracy-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏏 Player Picks Performance</div>
+      <div class="tabs" id="picks-tabs" style="margin-bottom:0.75rem">
+        <span class="tab active" data-ptab="bat" onclick="switchPicksTab('bat')">Batsmen</span>
+        <span class="tab" data-ptab="bowl" onclick="switchPicksTab('bowl')">Bowlers</span>
+      </div>
+      <div id="picks-bat-wrap">
+        <div class="acc-row header" style="grid-template-columns:1fr auto auto 70px"><span>Player</span><span>Picks</span><span>Wins</span><span>Win %</span></div>
+        <div id="picks-bat-list"></div>
+      </div>
+      <div id="picks-bowl-wrap" style="display:none">
+        <div class="acc-row header" style="grid-template-columns:1fr auto auto 70px"><span>Player</span><span>Picks</span><span>Wins</span><span>Win %</span></div>
+        <div id="picks-bowl-list"></div>
+      </div>
     </div>
   </div>
 
@@ -543,12 +558,75 @@ function renderAll() {
   renderMetrics();
   renderLeaderboard();
   renderAccuracy();
+  renderPicksStats();
   renderProgressChart();
   renderStreaks();
   renderAvgChart();
   if (currentTab === 'matchview') renderMatchView();
   else renderHistoryTable();
 }
+
+function getPicksStats() {
+  const bat = {}, bowl = {};
+  matchData.forEach(m => {
+    if (m.winner === 'Abandoned') return;
+    PLAYERS.forEach(p => {
+      const pk = m.picks[p] || {};
+      const batName = (pk.bat||'').trim();
+      const bowlName = (pk.bowl||'').trim();
+      if (batName) {
+        if (!bat[batName]) bat[batName] = {picks:0, wins:0};
+        bat[batName].picks++;
+        if (m.batsman && batName.toLowerCase().split(' ').some(w => w.length>2 && m.batsman.toLowerCase().includes(w)))
+          bat[batName].wins++;
+      }
+      if (bowlName) {
+        if (!bowl[bowlName]) bowl[bowlName] = {picks:0, wins:0};
+        bowl[bowlName].picks++;
+        if (m.bowler && bowlName.toLowerCase().split(' ').some(w => w.length>2 && m.bowler.toLowerCase().includes(w)))
+          bowl[bowlName].wins++;
+      }
+    });
+  });
+  return { bat, bowl };
+}
+
+function renderPicksList(containerId, data, minPicks=1) {
+  const sorted = Object.entries(data)
+    .filter(([,s]) => s.picks >= minPicks)
+    .sort((a,b) => b[1].picks - a[1].picks);
+  const maxPicks = sorted[0]?.[1].picks || 1;
+  const html = sorted.map(([name, s]) => {
+    const pct = s.picks > 0 ? Math.round(s.wins/s.picks*100) : 0;
+    const col = pct >= 40 ? 'var(--green)' : pct >= 20 ? 'var(--yellow)' : 'var(--red)';
+    const barW = Math.round(s.picks/maxPicks*100);
+    return `<div style="display:grid;grid-template-columns:1fr auto auto 60px;gap:0.5rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:0.8rem;font-weight:600">${name}</span>
+      <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">${s.picks}</span>
+      <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--green)">${s.wins}</span>
+      <div style="display:flex;align-items:center;gap:5px">
+        <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:3px"></div>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:0.68rem;color:${col};min-width:28px;text-align:right">${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById(containerId).innerHTML = html || '<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0">No data yet</p>';
+}
+
+function renderPicksStats() {
+  const {bat, bowl} = getPicksStats();
+  renderPicksList('picks-bat-list', bat, 2);
+  renderPicksList('picks-bowl-list', bowl, 2);
+}
+
+function switchPicksTab(tab) {
+  document.querySelectorAll('[data-ptab]').forEach(t => t.classList.toggle('active', t.dataset.ptab === tab));
+  document.getElementById('picks-bat-wrap').style.display  = tab === 'bat'  ? 'block' : 'none';
+  document.getElementById('picks-bowl-wrap').style.display = tab === 'bowl' ? 'block' : 'none';
+}
+
 
 function renderMetrics() {
   const standings = getFinalStandings();
