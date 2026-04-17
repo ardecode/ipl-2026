@@ -2,594 +2,611 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPL 2026 — Prediction League Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>IPL 2026 — Prediction League</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0d0f14; --surface: #161a22; --surface2: #1e2330;
-    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
-    --text: #f0f2f7; --muted: #6b7280; --accent: #f97316; --accent2: #38bdf8;
-    --accent3: #a78bfa; --green: #34d399; --red: #f87171; --yellow: #fbbf24;
-    --font-head: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0f14; --surface: #161a22; --surface2: #1e2330;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f0f2f7; --muted: #6b7280;
+  --accent: #f97316; --accent2: #38bdf8; --accent3: #a78bfa;
+  --green: #34d399; --red: #f87171; --yellow: #fbbf24;
+  --font-head: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+  --nav-h: 60px;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-head); min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+
+/* ── PAGE ── */
+.page { position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:1.25rem 1rem 5rem; }
+@media (min-width:640px) { .page { padding:2rem 1.5rem 4rem; } }
+
+/* ── HEADER ── */
+.header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.75rem; }
+.header-left h1 { font-size:clamp(1.75rem,7vw,3.5rem); font-weight:800; line-height:1; letter-spacing:-0.03em; }
+.header-left h1 span { color:var(--accent); }
+.header-left p { color:var(--muted); font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; margin-top:0.35rem; font-family:var(--font-mono); }
+.badge { background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:var(--accent); font-size:0.65rem; font-family:var(--font-mono); letter-spacing:0.1em; padding:4px 10px; border-radius:4px; white-space:nowrap; }
+
+/* ── SECTION LABEL ── */
+.section-label { font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:0.75rem; display:flex; align-items:center; gap:8px; }
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── METRICS ── */
+.metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem; }
+@media (min-width:480px) { .metrics { grid-template-columns:repeat(3,1fr); } }
+@media (min-width:900px) { .metrics { grid-template-columns:repeat(6,1fr); } }
+.metric { background:var(--surface); padding:1rem 1.25rem; }
+.metric-label { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase; margin-bottom:0.35rem; }
+.metric-value { font-size:1.6rem; font-weight:800; line-height:1; }
+@media (min-width:640px) { .metric-value { font-size:2rem; } }
+.metric-sub { font-family:var(--font-mono); font-size:0.65rem; color:var(--muted); margin-top:0.2rem; }
+.orange{color:var(--accent);} .blue{color:var(--accent2);} .purple{color:var(--accent3);} .green{color:var(--green);} .yellow{color:var(--yellow);}
+
+/* ── GRIDS ── */
+.grid-2 { display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:1rem; }
+.grid-3 { display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:1rem; }
+@media (min-width:640px) { .grid-2 { grid-template-columns:1fr 1fr; } }
+@media (min-width:900px) { .grid-3 { grid-template-columns:1fr 1fr 1fr; } }
+@media (min-width:640px) and (max-width:899px) { .grid-3 { grid-template-columns:1fr 1fr; } }
+
+/* ── CARD ── */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.1rem; }
+@media (min-width:640px) { .card { padding:1.5rem; } }
+.card-title { font-size:0.7rem; font-family:var(--font-mono); letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; margin-bottom:1rem; }
+
+/* ── COLLAPSIBLE CARD ── */
+.card-collapsible .card-title { cursor:pointer; display:flex; align-items:center; justify-content:space-between; user-select:none; margin-bottom:0; padding-bottom:1rem; }
+.card-collapsible .card-title::after { content:'▾'; font-size:0.85rem; color:var(--muted); transition:transform 0.2s; flex-shrink:0; }
+.card-collapsible.collapsed .card-title { padding-bottom:0; }
+.card-collapsible.collapsed .card-title::after { transform:rotate(-90deg); }
+.card-collapsible .card-body { overflow:hidden; transition:max-height 0.3s ease; max-height:2000px; }
+.card-collapsible.collapsed .card-body { max-height:0; }
+
+/* ── LEADERBOARD ── */
+.lb-row { display:grid; grid-template-columns:24px 1fr 60px auto auto; gap:0.5rem; align-items:center; padding:0.55rem 0; border-bottom:1px solid var(--border); }
+.lb-row:last-child { border-bottom:none; }
+.lb-rank { font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); text-align:center; }
+.lb-rank.gold{color:var(--yellow);font-weight:700;} .lb-rank.silver{color:#94a3b8;font-weight:700;} .lb-rank.bronze{color:#c2956c;font-weight:700;}
+.lb-name { font-size:0.9rem; font-weight:700; }
+.lb-bar-wrap { height:4px; background:rgba(255,255,255,0.06); border-radius:2px; }
+.lb-bar { height:100%; border-radius:2px; transition:width 0.6s ease; }
+.lb-pts { font-family:var(--font-mono); font-size:0.85rem; font-weight:500; text-align:right; }
+.lb-delta { font-family:var(--font-mono); font-size:0.65rem; min-width:28px; text-align:right; }
+.delta-pos{color:var(--green);} .delta-neg{color:var(--red);} .delta-zero{color:var(--muted);}
+
+/* ── ACCURACY ── */
+.acc-row { display:grid; grid-template-columns:1fr auto auto 80px; gap:0.5rem; align-items:center; padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.82rem; }
+.acc-row:last-child{border-bottom:none;}
+.acc-row.header{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;}
+.acc-bar-wrap{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.acc-bar{height:100%;border-radius:3px;}
+
+/* ── CHARTS ── */
+.chart-wrap{position:relative;width:100%;}
+
+/* ── TABLE ── */
+.match-table{width:100%;border-collapse:collapse;font-size:0.75rem;}
+.match-table th{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:0.45rem 0.6rem;text-align:left;border-bottom:1px solid var(--border2);white-space:nowrap;}
+.match-table td{padding:0.5rem 0.6rem;border-bottom:1px solid var(--border);white-space:nowrap;}
+.match-table tr:last-child td{border-bottom:none;}
+.match-table tr:hover td{background:rgba(255,255,255,0.02);}
+.cell-win{color:var(--green);font-family:var(--font-mono);}
+.cell-loss{color:var(--red);font-family:var(--font-mono);}
+.cell-half{color:var(--yellow);font-family:var(--font-mono);}
+.table-scroll{overflow-x:auto;border-radius:8px;-webkit-overflow-scrolling:touch;}
+.table-scroll::-webkit-scrollbar{height:4px;}
+.table-scroll::-webkit-scrollbar-track{background:var(--surface2);}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.team-pill{display:inline-block;font-family:var(--font-mono);font-size:0.62rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:var(--muted);}
+
+/* ── STREAKS ── */
+.streak-row{display:flex;align-items:center;gap:5px;padding:0.45rem 0;border-bottom:1px solid var(--border);}
+.streak-row:last-child{border-bottom:none;}
+.streak-name{width:72px;font-size:0.82rem;font-weight:700;flex-shrink:0;}
+.streak-dots{display:flex;gap:3px;flex:1;flex-wrap:nowrap;}
+.dot{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
+.dot-w{background:var(--green);} .dot-l{background:var(--red);} .dot-h{background:var(--yellow);} .dot-x{background:rgba(255,255,255,0.1);}
+.streak-label{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);white-space:nowrap;}
+
+/* ── UPDATE SECTION ── */
+.update-section{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.25rem;margin-top:1.5rem;}
+@media(min-width:640px){.update-section{padding:1.75rem;}}
+.update-section h3{font-size:0.95rem;font-weight:700;margin-bottom:0.35rem;}
+.update-section p{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;}
+textarea{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:0.78rem;padding:0.85rem;resize:vertical;min-height:160px;line-height:1.7;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--muted);}
+.btn-row{display:flex;gap:0.6rem;margin-top:0.75rem;flex-wrap:wrap;}
+button{font-family:var(--font-head);font-size:0.8rem;font-weight:700;letter-spacing:0.05em;padding:0.65rem 1.25rem;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s,transform 0.1s;min-height:44px;touch-action:manipulation;}
+button:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.parse-status{font-family:var(--font-mono);font-size:0.7rem;margin-top:0.75rem;padding:0.6rem 1rem;border-radius:6px;display:none;}
+.parse-ok{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:var(--green);}
+.parse-err{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);}
+.format-hint{background:var(--surface2);border-radius:8px;padding:0.85rem;margin-top:0.85rem;font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);line-height:1.8;}
+.format-hint b{color:var(--text);}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.5rem 0.85rem;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s;min-height:44px;display:flex;align-items:center;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── PILLS ── */
+.pill{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.05em;padding:5px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--border2);color:var(--muted);background:transparent;transition:all 0.15s;white-space:nowrap;min-height:32px;display:inline-flex;align-items:center;touch-action:manipulation;}
+.pill.active{background:var(--pc,var(--accent));border-color:var(--pc,var(--accent));color:#000;font-weight:500;}
+.pill[data-player="all"].active{background:var(--accent);border-color:var(--accent);}
+
+/* ── BOTTOM MOBILE NAV ── */
+.bottom-nav{display:none;}
+@media(max-width:639px){
+  .bottom-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;
+    background:rgba(22,26,34,0.97);border-top:1px solid var(--border2);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    height:var(--nav-h);padding:0 0.5rem;
+    justify-content:space-around;align-items:center;
   }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-head); min-height: 100vh; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
-  .page { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-  .header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem; }
-  .header-left h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
-  .header-left h1 span { color: var(--accent); }
-  .header-left p { color: var(--muted); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.4rem; font-family: var(--font-mono); }
-  .badge { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: var(--accent); font-size: 0.7rem; font-family: var(--font-mono); letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; }
-  .section-label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
-  .metric { background: var(--surface); padding: 1.25rem 1.5rem; }
-  .metric-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.4rem; }
-  .metric-value { font-size: 2rem; font-weight: 800; line-height: 1; }
-  .metric-sub { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
-  .orange { color: var(--accent); } .blue { color: var(--accent2); } .purple { color: var(--accent3); } .green { color: var(--green); } .yellow { color: var(--yellow); }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-  @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-  .card-title { font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 1.25rem; }
-  .lb-row { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 0.75rem; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
-  .lb-row:last-child { border-bottom: none; }
-  .lb-rank { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); text-align: center; }
-  .lb-rank.gold { color: var(--yellow); font-weight: 700; } .lb-rank.silver { color: #94a3b8; font-weight: 700; } .lb-rank.bronze { color: #c2956c; font-weight: 700; }
-  .lb-name { font-size: 0.95rem; font-weight: 700; }
-  .lb-bar-wrap { position: relative; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; width: 80px; }
-  .lb-bar { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.6s ease; }
-  .lb-pts { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 500; text-align: right; min-width: 36px; }
-  .lb-delta { font-family: var(--font-mono); font-size: 0.7rem; min-width: 30px; text-align: right; }
-  .delta-pos { color: var(--green); } .delta-neg { color: var(--red); } .delta-zero { color: var(--muted); }
-  .acc-row { display: grid; grid-template-columns: 1fr auto auto 100px; gap: 0.75rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-  .acc-row:last-child { border-bottom: none; }
-  .acc-row.header { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
-  .acc-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-  .acc-bar { height: 100%; border-radius: 3px; }
-  .chart-wrap { position: relative; width: 100%; }
-  .match-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-  .match-table th { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border2); white-space: nowrap; }
-  .match-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  .match-table tr:last-child td { border-bottom: none; }
-  .match-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .cell-win { color: var(--green); font-family: var(--font-mono); } .cell-loss { color: var(--red); font-family: var(--font-mono); } .cell-half { color: var(--yellow); font-family: var(--font-mono); }
-  .table-scroll { overflow-x: auto; border-radius: 8px; }
-  .team-pill { display: inline-block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.07); color: var(--muted); }
-  .streak-row { display: flex; align-items: center; gap: 6px; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
-  .streak-row:last-child { border-bottom: none; }
-  .streak-name { width: 80px; font-size: 0.85rem; font-weight: 700; }
-  .streak-dots { display: flex; gap: 4px; flex: 1; }
-  .dot { width: 14px; height: 14px; border-radius: 3px; }
-  .dot-w { background: var(--green); } .dot-l { background: var(--red); } .dot-h { background: var(--yellow); } .dot-x { background: rgba(255,255,255,0.1); }
-  .streak-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
-  .update-section { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 1.75rem; margin-top: 2rem; }
-  .update-section h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .update-section p { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.7; }
-  textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 0.8rem; padding: 1rem; resize: vertical; min-height: 180px; line-height: 1.7; outline: none; transition: border-color 0.2s; }
-  textarea:focus { border-color: var(--accent); }
-  textarea::placeholder { color: var(--muted); }
-  .btn-row { display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap; }
-  button { font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; }
-  button:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: #fff; } .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
-  .parse-status { font-family: var(--font-mono); font-size: 0.72rem; margin-top: 0.75rem; padding: 0.6rem 1rem; border-radius: 6px; display: none; }
-  .parse-ok { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }
-  .parse-err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
-  .format-hint { background: var(--surface2); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); line-height: 1.8; }
-  .format-hint b { color: var(--text); }
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; overflow-x: auto; }
-  .tab { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 1rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .pill { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 20px; cursor: pointer; border: 1px solid var(--border2); color: var(--muted); background: transparent; transition: all 0.15s; white-space: nowrap; }
-  .pill:hover { border-color: var(--pc, var(--accent)); color: var(--text); }
-  .pill.active { background: var(--pc, var(--accent)); border-color: var(--pc, var(--accent)); color: #000; font-weight: 500; }
-  .pill[data-player="all"].active { background: var(--accent); border-color: var(--accent); }
-  @media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, 1fr); } .acc-row { grid-template-columns: 1fr auto auto 70px; } }
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s,background 0.15s;min-width:52px;touch-action:manipulation;}
+  .nav-item.active{color:var(--accent);}
+  .nav-icon{font-size:1.3rem;line-height:1;}
+  .page{padding-bottom:calc(var(--nav-h) + 1rem);}
+  /* sections become individually scrollable views on mobile */
+  .mobile-section{display:none;}
+  .mobile-section.active{display:block;}
+}
+@media(min-width:640px){
+  .mobile-section{display:block !important;}
+}
+
+/* ── PICKS ── */
+.picks-row{display:grid;grid-template-columns:1fr auto auto 55px;gap:0.45rem;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border);}
+.picks-row:last-child{border-bottom:none;}
+
+/* ── PROGRESS LEGEND ── */
+#progress-legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:0.75rem;}
+
+/* ── SCROLL HINT ── */
+.scroll-hint{display:none;font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-align:right;margin-bottom:4px;opacity:0.7;}
+@media(max-width:639px){.scroll-hint{display:block;}}
 </style>
 </head>
 <body>
+
+<!-- Bottom navigation (mobile only) -->
+<nav class="bottom-nav">
+  <div class="nav-item active" data-section="standings" onclick="navTo('standings')">
+    <span class="nav-icon">🏆</span><span>Standings</span>
+  </div>
+  <div class="nav-item" data-section="charts" onclick="navTo('charts')">
+    <span class="nav-icon">📈</span><span>Charts</span>
+  </div>
+  <div class="nav-item" data-section="history" onclick="navTo('history')">
+    <span class="nav-icon">📋</span><span>History</span>
+  </div>
+  <div class="nav-item" data-section="update" onclick="navTo('update')">
+    <span class="nav-icon">➕</span><span>Update</span>
+  </div>
+</nav>
+
 <div class="page">
+
+  <!-- Header -->
   <div class="header">
     <div class="header-left">
       <h1>IPL 2026<br><span>Prediction League</span></h1>
       <p>🏏 Match 25 of season &nbsp;·&nbsp; Updated Apr 17</p>
     </div>
-    <div><span class="badge">LIVE TRACKER</span></div>
+    <span class="badge">LIVE TRACKER</span>
   </div>
 
+  <!-- Overview metrics — always visible -->
   <div class="section-label">Season overview</div>
-  <div class="metrics" id="overview-metrics">
-    <div class="metric"><div class="metric-label">Matches Played</div><div class="metric-value orange" id="m-played">25</div><div class="metric-sub">of 74 total</div></div>
-    <div class="metric"><div class="metric-label">Current Leader</div><div class="metric-value blue" id="m-leader">Rahul</div><div class="metric-sub" id="m-leader-pts">49 pts</div></div>
-    <div class="metric"><div class="metric-label">Tightest Gap</div><div class="metric-value purple" id="m-gap">2 pts</div><div class="metric-sub">1st vs 2nd</div></div>
-    <div class="metric"><div class="metric-label">Best Win Rate</div><div class="metric-value green" id="m-winrate">66.7%</div><div class="metric-sub" id="m-winrate-player">Rahul</div></div>
-    <div class="metric"><div class="metric-label">Total Matches Predicted</div><div class="metric-value yellow" id="m-total-preds">210</div><div class="metric-sub">across all players</div></div>
-    <div class="metric"><div class="metric-label">Overall Accuracy</div><div class="metric-value orange" id="m-overall-acc">54.3%</div><div class="metric-sub">avg across players</div></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Matches</div><div class="metric-value orange" id="m-played">25</div><div class="metric-sub">of 74</div></div>
+    <div class="metric"><div class="metric-label">Leader</div><div class="metric-value blue" id="m-leader">Rahul</div><div class="metric-sub" id="m-leader-pts">49 pts</div></div>
+    <div class="metric"><div class="metric-label">Gap</div><div class="metric-value purple" id="m-gap">2 pts</div><div class="metric-sub">1st vs 2nd</div></div>
+    <div class="metric"><div class="metric-label">Best Acc.</div><div class="metric-value green" id="m-winrate">66%</div><div class="metric-sub" id="m-winrate-player">Rahul</div></div>
+    <div class="metric"><div class="metric-label">Predictions</div><div class="metric-value yellow" id="m-total-preds">—</div><div class="metric-sub">total</div></div>
+    <div class="metric"><div class="metric-label">Avg Acc.</div><div class="metric-value orange" id="m-overall-acc">—</div><div class="metric-sub">across players</div></div>
   </div>
 
-  <div class="grid-3">
-    <div class="card">
-      <div class="card-title">🏆 Standings</div>
-      <div id="leaderboard"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">🎯 Winner Prediction Accuracy</div>
-      <div class="acc-row header"><span>Player</span><span>W/G</span><span>%</span><span>Accuracy</span></div>
-      <div id="accuracy-list"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">🏏 Player Picks Performance</div>
-      <div class="tabs" id="picks-tabs" style="margin-bottom:0.75rem">
-        <span class="tab active" data-ptab="bat" onclick="switchPicksTab('bat')">Batsmen</span>
-        <span class="tab" data-ptab="bowl" onclick="switchPicksTab('bowl')">Bowlers</span>
+  <!-- ═══ SECTION: STANDINGS ═══ -->
+  <div class="mobile-section active" id="sec-standings">
+    <div class="grid-3">
+      <!-- Leaderboard -->
+      <div class="card">
+        <div class="card-title">🏆 Standings</div>
+        <div id="leaderboard"></div>
       </div>
-      <div id="picks-bat-wrap">
-        <div class="acc-row header" style="grid-template-columns:1fr auto auto 70px"><span>Player</span><span>Picks</span><span>Wins</span><span>Win %</span></div>
-        <div id="picks-bat-list"></div>
+      <!-- Accuracy -->
+      <div class="card">
+        <div class="card-title">🎯 Winner Accuracy</div>
+        <div class="acc-row header"><span>Player</span><span>W/G</span><span>%</span><span>Bar</span></div>
+        <div id="accuracy-list"></div>
       </div>
-      <div id="picks-bowl-wrap" style="display:none">
-        <div class="acc-row header" style="grid-template-columns:1fr auto auto 70px"><span>Player</span><span>Picks</span><span>Wins</span><span>Win %</span></div>
-        <div id="picks-bowl-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-title">📈 Points Progression <span style="font-size:0.65rem;color:var(--muted);font-weight:400">— click name to isolate</span></div>
-    <div id="progress-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;"></div>
-    <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
-  </div>
-
-  <div class="grid-2" style="margin-top:1.5rem;">
-    <div class="card">
-      <div class="card-title">🔥 Recent Form (last 8 matches)</div>
-      <div id="streaks"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">📊 Avg Points per Match</div>
-      <div class="chart-wrap" style="height:280px;"><canvas id="avgChart"></canvas></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:1.5rem;">
-    <div class="card-title">📋 Match-by-Match History</div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
-      <span class="tab active" data-tab="matchview" onclick="switchTab('matchview')" style="flex-shrink:0">🏏 Match View</span>
-      <div style="width:1px;height:20px;background:var(--border2);flex-shrink:0"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;" id="player-pills">
-        <span class="pill active" data-player="all" onclick="togglePlayer('all')">All</span>
-        <span class="pill" data-player="Rahul" onclick="togglePlayer('Rahul')" style="--pc:#38bdf8">Rahul</span>
-        <span class="pill" data-player="Arijit" onclick="togglePlayer('Arijit')" style="--pc:#a78bfa">Arijit</span>
-        <span class="pill" data-player="Mythy" onclick="togglePlayer('Mythy')" style="--pc:#f97316">Mythy</span>
-        <span class="pill" data-player="Akhil" onclick="togglePlayer('Akhil')" style="--pc:#34d399">Akhil</span>
-        <span class="pill" data-player="Ashish" onclick="togglePlayer('Ashish')" style="--pc:#fb923c">Ashish</span>
-        <span class="pill" data-player="Rakesh" onclick="togglePlayer('Rakesh')" style="--pc:#f472b6">Rakesh</span>
-        <span class="pill" data-player="Yogi" onclick="togglePlayer('Yogi')" style="--pc:#facc15">Yogi</span>
-        <span class="pill" data-player="Jay" onclick="togglePlayer('Jay')" style="--pc:#67e8f9">Jay</span>
-        <span class="pill" data-player="Abhijith" onclick="togglePlayer('Abhijith')" style="--pc:#c084fc">Abhijith</span>
-        <span class="pill" data-player="Vignan" onclick="togglePlayer('Vignan')" style="--pc:#86efac">Vignan</span>
+      <!-- Picks performance -->
+      <div class="card">
+        <div class="card-title">🏏 Pick Performance</div>
+        <div class="tabs">
+          <span class="tab active" data-ptab="bat" onclick="switchPicksTab('bat')">Batsmen</span>
+          <span class="tab" data-ptab="bowl" onclick="switchPicksTab('bowl')">Bowlers</span>
+        </div>
+        <div id="picks-bat-wrap">
+          <div class="picks-row" style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em"><span>Name</span><span>Picks</span><span>Wins</span><span>Win%</span></div>
+          <div id="picks-bat-list"></div>
+        </div>
+        <div id="picks-bowl-wrap" style="display:none">
+          <div class="picks-row" style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em"><span>Name</span><span>Picks</span><span>Wins</span><span>Win%</span></div>
+          <div id="picks-bowl-list"></div>
+        </div>
       </div>
     </div>
-    <div class="table-scroll" id="matchview-wrap"><table class="match-table" id="matchview-table"></table></div>
-    <div class="table-scroll" id="history-wrap" style="display:none"><table class="match-table" id="history-table"></table></div>
   </div>
 
-  <div class="update-section">
-    <h3>➕ Add Tomorrow's Match Result</h3>
-    <p>Paste the match result message from your WhatsApp group. The dashboard will update automatically.</p>
-    <textarea id="update-input" placeholder="🏏 Match 26 ..."></textarea>
-    <div class="btn-row">
-      <button class="btn-primary" onclick="parseUpdate()">Update Dashboard</button>
-      <button class="btn-secondary" onclick="document.getElementById('update-input').value=''">Clear</button>
+  <!-- ═══ SECTION: CHARTS ═══ -->
+  <div class="mobile-section" id="sec-charts">
+    <!-- Progress chart -->
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="card-title">📈 Points Progression <span style="font-size:0.6rem;color:var(--muted);font-weight:400">— tap name to isolate</span></div>
+      <div id="progress-legend"></div>
+      <div class="chart-wrap" style="height:300px;"><canvas id="progressChart"></canvas></div>
     </div>
-    <div class="parse-status" id="parse-status"></div>
-    <div class="format-hint">
-      <b>Accepted format:</b><br>
-      🏏 Match N TEAM1 vs TEAM2<br>
-      Player - PICK/Batsman/Bowler (one per line)<br>
-      Winner - TEAM &nbsp;·&nbsp; Batsman - NAME &nbsp;·&nbsp; Bowler - NAME<br>
-      "This match:" followed by player +/- scores
+    <!-- Streaks + avg side by side on tablet+ -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔥 Recent Form (last 8)</div>
+        <div id="streaks"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Avg Points / Match</div>
+        <div class="chart-wrap" style="height:280px;"><canvas id="avgChart"></canvas></div>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- ═══ SECTION: HISTORY ═══ -->
+  <div class="mobile-section" id="sec-history">
+    <div class="card">
+      <div class="card-title">📋 Match-by-Match History</div>
+      <!-- Player filter pills — scrollable on mobile -->
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:0.85rem;padding-bottom:4px;">
+        <div style="display:flex;gap:6px;align-items:center;width:max-content;" id="player-pills">
+          <span class="pill active" data-player="all" onclick="togglePlayer('all')">All</span>
+          <span class="pill" data-player="Rahul"    onclick="togglePlayer('Rahul')"    style="--pc:#38bdf8">Rahul</span>
+          <span class="pill" data-player="Arijit"   onclick="togglePlayer('Arijit')"   style="--pc:#a78bfa">Arijit</span>
+          <span class="pill" data-player="Mythy"    onclick="togglePlayer('Mythy')"    style="--pc:#f97316">Mythy</span>
+          <span class="pill" data-player="Akhil"    onclick="togglePlayer('Akhil')"    style="--pc:#34d399">Akhil</span>
+          <span class="pill" data-player="Ashish"   onclick="togglePlayer('Ashish')"   style="--pc:#fb923c">Ashish</span>
+          <span class="pill" data-player="Rakesh"   onclick="togglePlayer('Rakesh')"   style="--pc:#f472b6">Rakesh</span>
+          <span class="pill" data-player="Yogi"     onclick="togglePlayer('Yogi')"     style="--pc:#facc15">Yogi</span>
+          <span class="pill" data-player="Jay"      onclick="togglePlayer('Jay')"      style="--pc:#67e8f9">Jay</span>
+          <span class="pill" data-player="Abhijith" onclick="togglePlayer('Abhijith')" style="--pc:#c084fc">Abhijith</span>
+          <span class="pill" data-player="Vignan"   onclick="togglePlayer('Vignan')"   style="--pc:#86efac">Vignan</span>
+        </div>
+      </div>
+      <p class="scroll-hint">← swipe to scroll →</p>
+      <div class="table-scroll" id="matchview-wrap"><table class="match-table" id="matchview-table"></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION: UPDATE ═══ -->
+  <div class="mobile-section" id="sec-update">
+    <div class="update-section">
+      <h3>➕ Add Match Result</h3>
+      <p>Paste the WhatsApp result message. The dashboard updates instantly.</p>
+      <textarea id="update-input" placeholder="🏏 Match 26 GT vs RR&#10;Abhijith - GT/Gill/Rashid&#10;...&#10;Winner - GT&#10;Batsman - Gill&#10;Bowler - Rashid&#10;This match&#10;Abhijith +3&#10;..."></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="parseUpdate()">Update Dashboard</button>
+        <button class="btn-secondary" onclick="document.getElementById('update-input').value=''">Clear</button>
+      </div>
+      <div class="parse-status" id="parse-status"></div>
+      <div class="format-hint">
+        <b>Format:</b><br>
+        🏏 Match N TEAM1 vs TEAM2<br>
+        Player - PICK/Batsman/Bowler<br>
+        Winner - TEAM · Batsman - NAME · Bowler - NAME<br>
+        "This match" followed by +/- scores
+      </div>
+    </div>
+  </div>
+
+</div><!-- end page -->
 
 <script>
 const PLAYERS = ["Abhijith","Akhil","Arijit","Ashish","Jay","Mythy","Rahul","Rakesh","Vignan","Yogi"];
-const COLORS = {
-  Rahul:"#38bdf8", Arijit:"#a78bfa", Mythy:"#f97316", Akhil:"#34d399",
-  Ashish:"#fb923c", Rakesh:"#f472b6", Yogi:"#facc15", Jay:"#67e8f9",
-  Abhijith:"#c084fc", Vignan:"#86efac"
-};
+const COLORS = {Rahul:"#38bdf8",Arijit:"#a78bfa",Mythy:"#f97316",Akhil:"#34d399",Ashish:"#fb923c",Rakesh:"#f472b6",Yogi:"#facc15",Jay:"#67e8f9",Abhijith:"#c084fc",Vignan:"#86efac"};
 
 let matchData = [
-  {num:1,teams:"RCB vs SRH",winner:"RCB",batsman:"Ishan Kishan",bowler:"Duffy",
-   picks:{Abhijith:{team:"RCB",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"RCB",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"RCB",bat:"",bowl:""},Mythy:{team:"SRH",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},
-   scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:3,Mythy:0,Rahul:0,Rakesh:0,Vignan:-1,Yogi:0}},
-  {num:2,teams:"MI vs KKR",winner:"MI",batsman:"Rickelton",bowler:"Shardul",
-   picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Shardul"},Akhil:{team:"MI",bat:"Suryakumar",bowl:"Bumrah"},Arijit:{team:"MI",bat:"Finn Allen",bowl:"Hardik"},Ashish:{team:"MI",bat:"Tilak Varma",bowl:"Trent Boult"},Jay:{team:"MI",bat:"SKY",bowl:"Bumrah"},Mythy:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"MI",bat:"Finn Allen",bowl:"Varun"},Yogi:{team:"",bat:"",bowl:""}},
-   scores:{Abhijith:0,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
-  {num:3,teams:"RR vs CSK",winner:"RR",batsman:"Vaibhav",bowler:"Archer",
-   picks:{Abhijith:{team:"CSK",bat:"Suryavamshi",bowl:"Noor"},Akhil:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre Burger"},Ashish:{team:"",bat:"Vaibhav",bowl:"Jadeja"},Jay:{team:"CSK",bat:"Ruturaj",bowl:"Archer"},Mythy:{team:"CSK",bat:"Jaiswal",bowl:"Sandeep"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"CSK",bat:"",bowl:""},Yogi:{team:"",bat:"",bowl:""}},
-   scores:{Abhijith:0,Akhil:4,Arijit:4,Ashish:0,Jay:0,Mythy:-1,Rahul:4,Rakesh:0,Vignan:-1,Yogi:-1}},
-  {num:4,teams:"PBKS vs GT",winner:"PBKS",batsman:"Cooper",bowler:"Prasidh",
-   picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Priyansh Arya",bowl:"Chahal"},Arijit:{team:"PBKS",bat:"Gill",bowl:"Chahal"},Ashish:{team:"GT",bat:"Butler",bowl:"Rabada"},Jay:{team:"PBKS",bat:"Shubman",bowl:"Arshdeep"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Arshdeep"},Rahul:{team:"PBKS",bat:"Shreyas",bowl:"Jansen"},Rakesh:{team:"PBKS",bat:"Shreyas Iyer",bowl:"Rabada"},Vignan:{team:"PBKS",bat:"Prabhsimran",bowl:"Arshdeep"},Yogi:{team:"PBKS",bat:"Sai Sudharshan",bowl:"Jansen"}},
-   scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:5,teams:"LSG vs DC",winner:"DC",batsman:"Rizvi",bowler:"Nattu",
-   picks:{Abhijith:{team:"DC",bat:"",bowl:""},Akhil:{team:"LSG",bat:"",bowl:""},Arijit:{team:"DC",bat:"",bowl:""},Ashish:{team:"DC",bat:"",bowl:""},Jay:{team:"LSG",bat:"",bowl:""},Mythy:{team:"LSG",bat:"",bowl:""},Rahul:{team:"LSG",bat:"",bowl:""},Rakesh:{team:"DC",bat:"",bowl:""},Vignan:{team:"DC",bat:"",bowl:""},Yogi:{team:"LSG",bat:"",bowl:""}},
-   scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:3,Vignan:3,Yogi:-1}},
-  {num:6,teams:"KKR vs SRH",winner:"SRH",batsman:"Raghuvanshi",bowler:"Muzarabani",
-   picks:{Abhijith:{team:"KKR",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"SRH",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"KKR",bat:"",bowl:""},Mythy:{team:"KKR",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},
-   scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:7,teams:"CSK vs PBKS",winner:"PBKS",batsman:"Ayush",bowler:"Vyshak",
-   picks:{Abhijith:{team:"PBKS",bat:"Samson",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Shreyas",bowl:"Bartlett"},Arijit:{team:"PBKS",bat:"Arya",bowl:"Jansen"},Ashish:{team:"CSK",bat:"",bowl:""},Jay:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Vyshak"},Rahul:{team:"PBKS",bat:"Arya",bowl:"Chahal"},Rakesh:{team:"PBKS",bat:"Prabhsimran",bowl:"Kaleel Ahmed"},Vignan:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Yogi:{team:"PBKS",bat:"Gaikwad",bowl:"Chahal"}},
-   scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:8,teams:"DC vs MI",winner:"DC",batsman:"Sameer",bowler:"Mukesh",
-   picks:{Abhijith:{team:"MI",bat:"Rohit",bowl:"Shardul"},Akhil:{team:"MI",bat:"Rahul",bowl:"Bumrah"},Arijit:{team:"MI",bat:"SKY",bowl:"Shardul"},Ashish:{team:"MI",bat:"Rohit",bowl:"Boult"},Jay:{team:"MI",bat:"Rahul",bowl:"Shardul"},Mythy:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Rahul:{team:"MI",bat:"SKY",bowl:"Shardul"},Rakesh:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Vignan:{team:"MI",bat:"Rohit",bowl:"Hardik"},Yogi:{team:"MI",bat:"Ryan",bowl:"Santner"}},
-   scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:-1,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:-1}},
-  {num:9,teams:"GT vs RR",winner:"RR",batsman:"Jurel",bowler:"Bishnoi",
-   picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Siraj"},Akhil:{team:"GT",bat:"Sudharsan",bowl:"Rabada"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre"},Ashish:{team:"GT",bat:"Vaibhav",bowl:"Rashid Khan"},Jay:{team:"GT",bat:"Jurel",bowl:"Rashid"},Mythy:{team:"RR",bat:"Jurel",bowl:"Archer"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"RR",bat:"Sudharsan",bowl:"Rabada"},Vignan:{team:"GT",bat:"Butler",bowl:"Burger"},Yogi:{team:"RR",bat:"Jaiswal",bowl:"Burger"}},
-   scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:0,Mythy:4,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
-  {num:10,teams:"SRH vs LSG",winner:"LSG",batsman:"Pant",bowler:"Shami",
-   picks:{Abhijith:{team:"SRH",bat:"Ishan",bowl:"Digvesh"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Arijit:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Ashish:{team:"SRH",bat:"Klassen",bowl:"Harsh"},Jay:{team:"SRH",bat:"Head",bowl:"Shami"},Mythy:{team:"LSG",bat:"Ishan",bowl:"Malinga"},Rahul:{team:"SRH",bat:"Abhishek",bowl:"Jaydev"},Rakesh:{team:"SRH",bat:"Abhishek",bowl:"Jaydev"},Vignan:{team:"SRH",bat:"Abhishek",bowl:"Harshal"},Yogi:{team:"SRH",bat:"Head",bowl:"Mohsin"}},
-   scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:-1,Jay:-1,Mythy:3,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:-1}},
-  {num:11,teams:"RCB vs CSK",winner:"RCB",batsman:"Tim David",bowler:"Bhuvi",
-   picks:{Abhijith:{team:"RCB",bat:"Padikkal",bowl:"Duffy"},Akhil:{team:"RCB",bat:"Salt",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Kohli",bowl:"Krunal"},Ashish:{team:"RCB",bat:"DDP",bowl:"Bhuvi"},Jay:{team:"RCB",bat:"",bowl:""},Mythy:{team:"RCB",bat:"Kohli",bowl:"Duffy"},Rahul:{team:"RCB",bat:"Salt",bowl:"Noor"},Rakesh:{team:"RCB",bat:"Kohli",bowl:"Duffy"},Vignan:{team:"RCB",bat:"Salt",bowl:"Duffy"},Yogi:{team:"RCB",bat:"Salt",bowl:"Jamie"}},
-   scores:{Abhijith:3,Akhil:4,Arijit:3,Ashish:4,Jay:3,Mythy:3,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:12,teams:"PBKS vs KKR",winner:"Abandoned",batsman:"",bowler:"",
-   picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Vyshak"},Akhil:{team:"PBKS",bat:"Prabhsimran",bowl:"Chahal"},Arijit:{team:"PBKS",bat:"Finn",bowl:"Chahal"},Ashish:{team:"KKR",bat:"Green",bowl:"Tyagi"},Jay:{team:"PBKS",bat:"Shreyas",bowl:"Vyshak"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Jansen"},Rahul:{team:"PBKS",bat:"Raghuvanshi",bowl:"Jansen"},Rakesh:{team:"KKR",bat:"Rahane",bowl:"Narine"},Vignan:{team:"PBKS",bat:"Raghuvanshi",bowl:"Vyshak"},Yogi:{team:"PBKS",bat:"Finn",bowl:"Narine"}},
-   scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:13,teams:"MI vs RR",winner:"RR",batsman:"Jaiswal",bowler:"",
-   picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Deshpande"},Akhil:{team:"MI",bat:"Rohit",bowl:"Shardul"},Arijit:{team:"MI",bat:"SKY",bowl:"Boult"},Ashish:{team:"MI",bat:"Rohit",bowl:"Boult"},Jay:{team:"RR",bat:"Vaibhav",bowl:"Bumrah"},Mythy:{team:"RR",bat:"Rohit",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Ryan",bowl:"Boult"},Rakesh:{team:"RR",bat:"Vaibhav",bowl:"Bumrah"},Vignan:{team:"MI",bat:"Vaibhav",bowl:"Boult"},Yogi:{team:"MI",bat:"Ryan",bowl:"Boult"}},
-   scores:{Abhijith:3,Akhil:-1,Arijit:-1,Ashish:-1,Jay:3,Mythy:3,Rahul:-1,Rakesh:3,Vignan:-1,Yogi:-1}},
-  {num:14,teams:"DC vs GT",winner:"GT",batsman:"Rahul",bowler:"Rashid",
-   picks:{Abhijith:{team:"DC",bat:"TBD",bowl:"TBD"},Akhil:{team:"GT",bat:"Buttler",bowl:"Rashid"},Arijit:{team:"DC",bat:"Butler",bowl:"Axar"},Ashish:{team:"DC",bat:"Sudharshan",bowl:"Axar"},Jay:{team:"GT",bat:"Sudharshan",bowl:"Rabada"},Mythy:{team:"GT",bat:"Rahul",bowl:"Rashid"},Rahul:{team:"GT",bat:"Gill",bowl:"Axar"},Rakesh:{team:"GT",bat:"Butler",bowl:"Rabada"},Vignan:{team:"DC",bat:"Nissanka",bowl:"Kuldeep"},Yogi:{team:"GT",bat:"Sudharshan",bowl:"Siraj"}},
-   scores:{Abhijith:-1,Akhil:4,Arijit:-1,Ashish:-1,Jay:3,Mythy:5,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
-  {num:15,teams:"KKR vs LSG",winner:"LSG",batsman:"Mukul",bowler:"Anukul Roy",
-   picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Saini"},Akhil:{team:"LSG",bat:"Finn",bowl:"Avesh"},Arijit:{team:"LSG",bat:"Finn",bowl:"Shami"},Ashish:{team:"LSG",bat:"Pant",bowl:"Prince"},Jay:{team:"LSG",bat:"Fin Allen",bowl:"Shami"},Mythy:{team:"LSG",bat:"Markram",bowl:"Shami"},Rahul:{team:"LSG",bat:"Pooran",bowl:"Shami"},Rakesh:{team:"KKR",bat:"",bowl:""},Vignan:{team:"LSG",bat:"",bowl:""},Yogi:{team:"KKR",bat:"",bowl:""}},
-   scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
-  {num:16,teams:"RCB vs RR",winner:"RR",batsman:"Jurel",bowler:"Krunal",
-   picks:{Abhijith:{team:"RCB",bat:"Vaibhav",bowl:"Bishnoi"},Akhil:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Ashish:{team:"RR",bat:"Parag",bowl:"Sandeep"},Jay:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Mythy:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Rahul:{team:"RCB",bat:"Virat",bowl:"Hazlewood"},Rakesh:{team:"RCB",bat:"Devdutt",bowl:"Bhuvi"},Vignan:{team:"RCB",bat:"Jaiswal",bowl:"Burger"},Yogi:{team:"RR",bat:"Jaiswal",bowl:"Bishnoi"}},
-   scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:3}},
-  {num:17,teams:"PBKS vs SRH",winner:"PBKS",batsman:"Abhishek",bowler:"Shivang",
-   picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Arijit:{team:"PBKS",bat:"Abhishek",bowl:"Harsh"},Ashish:{team:"SRH",bat:"Travis",bowl:"Malinga"},Jay:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Mythy:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Rahul:{team:"SRH",bat:"Ishan",bowl:"Harsh Dubey"},Rakesh:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Vignan:{team:"PBKS",bat:"Prabhsimran",bowl:"Vyshak"},Yogi:{team:"SRH",bat:"",bowl:""}},
-   scores:{Abhijith:3,Akhil:0,Arijit:4,Ashish:-1,Jay:0,Mythy:1,Rahul:-1,Rakesh:0,Vignan:3,Yogi:-1}},
-  {num:18,teams:"CSK vs DC",winner:"CSK",batsman:"Sanju",bowler:"Overton",
-   picks:{Abhijith:{team:"DC",bat:"",bowl:""},Akhil:{team:"DC",bat:"",bowl:""},Arijit:{team:"DC",bat:"KL",bowl:"Kuldeep"},Ashish:{team:"CSK",bat:"Ayush",bowl:"Natarajan"},Jay:{team:"DC",bat:"Rizvi",bowl:"Kuldeep"},Mythy:{team:"CSK",bat:"Ruturaj",bowl:"Noor"},Rahul:{team:"DC",bat:"Samson",bowl:"Ngidi"},Rakesh:{team:"DC",bat:"KL Rahul",bowl:"Axar"},Vignan:{team:"DC",bat:"",bowl:""},Yogi:{team:"DC",bat:"Pathum",bowl:"Noor"}},
-   scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:3,Jay:-1,Mythy:3,Rahul:0,Rakesh:-1,Vignan:-1,Yogi:-1}},
-  {num:19,teams:"LSG vs GT",winner:"GT",batsman:"Butler",bowler:"Prasidh",
-   picks:{Abhijith:{team:"LSG",bat:"Badoni",bowl:"Shami"},Akhil:{team:"GT",bat:"Sudharsan",bowl:"Rashid"},Arijit:{team:"GT",bat:"Butler",bowl:"Rashid"},Ashish:{team:"LSG",bat:"Marsh",bowl:"Shami"},Jay:{team:"GT",bat:"Sudharshan",bowl:"Rashid"},Mythy:{team:"GT",bat:"Gill",bowl:"Rashid"},Rahul:{team:"GT",bat:"Butler",bowl:"Prasidh"},Rakesh:{team:"GT",bat:"Gill",bowl:"Rashid"},Vignan:{team:"LSG",bat:"Markram",bowl:"Prince"},Yogi:{team:"GT",bat:"Marsh",bowl:"Rashid"}},
-   scores:{Abhijith:-1,Akhil:3,Arijit:4,Ashish:-1,Jay:3,Mythy:3,Rahul:5,Rakesh:3,Vignan:-1,Yogi:3}},
-  {num:20,teams:"MI vs RCB",winner:"RCB",batsman:"Salt",bowler:"Suyash",
-   picks:{Abhijith:{team:"MI",bat:"Rohit",bowl:"Bumrah"},Akhil:{team:"MI",bat:"Rohit",bowl:"Krunal"},Arijit:{team:"RCB",bat:"SKY",bowl:"Boult"},Ashish:{team:"MI",bat:"Tilak",bowl:"Ghanzafar"},Jay:{team:"MI",bat:"SKY",bowl:"Shardul"},Mythy:{team:"RCB",bat:"SKY",bowl:"Krunal"},Rahul:{team:"RCB",bat:"Ryan",bowl:"Shardul"},Rakesh:{team:"RCB",bat:"SKY",bowl:"Krunal"},Vignan:{team:"MI",bat:"Tilak",bowl:"Shardul"},Yogi:{team:"RCB",bat:"Rohit",bowl:"Santner"}},
-   scores:{Abhijith:-1,Akhil:-1,Arijit:3,Ashish:-1,Jay:-1,Mythy:3,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
-  {num:21,teams:"SRH vs RR",winner:"SRH",batsman:"Ishan Kishan",bowler:"Sakid Hussain",
-   picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Bishnoi"},Akhil:{team:"SRH",bat:"Head",bowl:"Bishnoi"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Bishnoi"},Ashish:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Jay:{team:"RR",bat:"Head",bowl:"Nandre"},Mythy:{team:"RR",bat:"Jaiswal",bowl:"Shivang"},Rahul:{team:"SRH",bat:"Kishan",bowl:"Praful"},Rakesh:{team:"SRH",bat:"Ishan",bowl:"Dubey"},Vignan:{team:"RR",bat:"Jaiswal",bowl:"Sandeep"},Yogi:{team:"RR",bat:"Abhishek",bowl:"Bishnoi"}},
-   scores:{Abhijith:-1,Akhil:3,Arijit:-1,Ashish:3,Jay:-1,Mythy:-1,Rahul:4,Rakesh:4,Vignan:-1,Yogi:-1}},
-  {num:22,teams:"CSK vs KKR",winner:"CSK",batsman:"Sanju",bowler:"Noor",
-   picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Vaibhav Arora"},Akhil:{team:"CSK",bat:"Ruturaj",bowl:"Overton"},Arijit:{team:"CSK",bat:"Raghuvanshi",bowl:"Overton"},Ashish:{team:"CSK",bat:"Gaikwad",bowl:"Noor"},Jay:{team:"CSK",bat:"Raghuvanshi",bowl:"Overton"},Mythy:{team:"CSK",bat:"Sanju",bowl:"Gurjapneet"},Rahul:{team:"CSK",bat:"Raghuvanshi",bowl:"Kamboj"},Rakesh:{team:"KKR",bat:"Fin Allen",bowl:"Vaibhav Arora"},Vignan:{team:"CSK",bat:"Samson",bowl:""},Yogi:{team:"KKR",bat:"",bowl:""}},
-   scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:4,Jay:3,Mythy:4,Rahul:3,Rakesh:-1,Vignan:4,Yogi:-1}},
-  {num:23,teams:"RCB vs LSG",winner:"RCB",batsman:"Kohli",bowler:"Rasikh",
-   picks:{Abhijith:{team:"RCB",bat:"Kohli",bowl:"Suyash"},Akhil:{team:"RCB",bat:"Rajat",bowl:"Prince"},Arijit:{team:"RCB",bat:"Rajat",bowl:"Rasikh"},Ashish:{team:"RCB",bat:"Kohli",bowl:"Pandya"},Jay:{team:"LSG",bat:"",bowl:""},Mythy:{team:"LSG",bat:"Salt",bowl:"Prince"},Rahul:{team:"RCB",bat:"DDP",bowl:"Josh"},Rakesh:{team:"RCB",bat:"Padikkal",bowl:"Krunal"},Vignan:{team:"RCB",bat:"Padikkal",bowl:"Digvesh"},Yogi:{team:"RCB",bat:"Padikkal",bowl:"Digvesh"}},
-   scores:{Abhijith:4,Akhil:3,Arijit:4,Ashish:4,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:24,teams:"MI vs PBKS",winner:"PBKS",batsman:"De Kock",bowler:"Arshdeep",
-   picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Bartlett"},Akhil:{team:"PBKS",bat:"Prabhsimran",bowl:"Chahal"},Arijit:{team:"MI",bat:"Shreyas",bowl:"Shardul"},Ashish:{team:"PBKS",bat:"Arya",bowl:"Chahal"},Jay:{team:"MI",bat:"SKY",bowl:"Deepak"},Mythy:{team:"MI",bat:"De Kock",bowl:"Bumrah"},Rahul:{team:"PBKS",bat:"Prabhsimran",bowl:"Jansen"},Rakesh:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Vignan:{team:"MI",bat:"",bowl:""},Yogi:{team:"PBKS",bat:"",bowl:""}},
-   scores:{Abhijith:3,Akhil:3,Arijit:-1,Ashish:3,Jay:-1,Mythy:0,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
-  {num:25,teams:"GT vs KKR",winner:"GT",batsman:"Gill",bowler:"Rabada",
-   picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Vaibhav"},Akhil:{team:"GT",bat:"Buttler",bowl:"Rabada"},Arijit:{team:"GT",bat:"Butler",bowl:"Prasidh"},Ashish:{team:"KKR",bat:"Tim",bowl:"Arora"},Jay:{team:"GT",bat:"Sudharsan",bowl:"Prasidh"},Mythy:{team:"GT",bat:"Gill",bowl:"Prasidh"},Rahul:{team:"GT",bat:"Sai",bowl:"Prasidh"},Rakesh:{team:"GT",bat:"Sai Sudharshan",bowl:"Rabada"},Vignan:{team:"GT",bat:"Sai",bowl:"Rashid"},Yogi:{team:"GT",bat:"Sai Sudharshan",bowl:"Prasidh"}},
-   scores:{Abhijith:-1,Akhil:4,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:4,Vignan:3,Yogi:3}},
+  {num:1,teams:"RCB vs SRH",winner:"RCB",batsman:"Ishan Kishan",bowler:"Duffy",picks:{Abhijith:{team:"RCB",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"RCB",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"RCB",bat:"",bowl:""},Mythy:{team:"SRH",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:3,Mythy:0,Rahul:0,Rakesh:0,Vignan:-1,Yogi:0}},
+  {num:2,teams:"MI vs KKR",winner:"MI",batsman:"Rickelton",bowler:"Shardul",picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Shardul"},Akhil:{team:"MI",bat:"Suryakumar",bowl:"Bumrah"},Arijit:{team:"MI",bat:"Finn Allen",bowl:"Hardik"},Ashish:{team:"MI",bat:"Tilak Varma",bowl:"Trent Boult"},Jay:{team:"MI",bat:"SKY",bowl:"Bumrah"},Mythy:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"MI",bat:"Finn Allen",bowl:"Varun"},Yogi:{team:"",bat:"",bowl:""}},scores:{Abhijith:0,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
+  {num:3,teams:"RR vs CSK",winner:"RR",batsman:"Vaibhav",bowler:"Archer",picks:{Abhijith:{team:"CSK",bat:"Suryavamshi",bowl:"Noor"},Akhil:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre Burger"},Ashish:{team:"",bat:"Vaibhav",bowl:"Jadeja"},Jay:{team:"CSK",bat:"Ruturaj",bowl:"Archer"},Mythy:{team:"CSK",bat:"Jaiswal",bowl:"Sandeep"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"CSK",bat:"",bowl:""},Yogi:{team:"",bat:"",bowl:""}},scores:{Abhijith:0,Akhil:4,Arijit:4,Ashish:0,Jay:0,Mythy:-1,Rahul:4,Rakesh:0,Vignan:-1,Yogi:-1}},
+  {num:4,teams:"PBKS vs GT",winner:"PBKS",batsman:"Cooper",bowler:"Prasidh",picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Priyansh Arya",bowl:"Chahal"},Arijit:{team:"PBKS",bat:"Gill",bowl:"Chahal"},Ashish:{team:"GT",bat:"Butler",bowl:"Rabada"},Jay:{team:"PBKS",bat:"Shubman",bowl:"Arshdeep"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Arshdeep"},Rahul:{team:"PBKS",bat:"Shreyas",bowl:"Jansen"},Rakesh:{team:"PBKS",bat:"Shreyas Iyer",bowl:"Rabada"},Vignan:{team:"PBKS",bat:"Prabhsimran",bowl:"Arshdeep"},Yogi:{team:"PBKS",bat:"Sai Sudharshan",bowl:"Jansen"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:5,teams:"LSG vs DC",winner:"DC",batsman:"Rizvi",bowler:"Nattu",picks:{Abhijith:{team:"DC",bat:"",bowl:""},Akhil:{team:"LSG",bat:"",bowl:""},Arijit:{team:"DC",bat:"",bowl:""},Ashish:{team:"DC",bat:"",bowl:""},Jay:{team:"LSG",bat:"",bowl:""},Mythy:{team:"LSG",bat:"",bowl:""},Rahul:{team:"LSG",bat:"",bowl:""},Rakesh:{team:"DC",bat:"",bowl:""},Vignan:{team:"DC",bat:"",bowl:""},Yogi:{team:"LSG",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:3,Vignan:3,Yogi:-1}},
+  {num:6,teams:"KKR vs SRH",winner:"SRH",batsman:"Raghuvanshi",bowler:"Muzarabani",picks:{Abhijith:{team:"KKR",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"SRH",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"KKR",bat:"",bowl:""},Mythy:{team:"KKR",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:7,teams:"CSK vs PBKS",winner:"PBKS",batsman:"Ayush",bowler:"Vyshak",picks:{Abhijith:{team:"PBKS",bat:"Samson",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Shreyas",bowl:"Bartlett"},Arijit:{team:"PBKS",bat:"Arya",bowl:"Jansen"},Ashish:{team:"CSK",bat:"",bowl:""},Jay:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Vyshak"},Rahul:{team:"PBKS",bat:"Arya",bowl:"Chahal"},Rakesh:{team:"PBKS",bat:"Prabhsimran",bowl:"Kaleel Ahmed"},Vignan:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Yogi:{team:"PBKS",bat:"Gaikwad",bowl:"Chahal"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:8,teams:"DC vs MI",winner:"DC",batsman:"Sameer",bowler:"Mukesh",picks:{Abhijith:{team:"MI",bat:"Rohit",bowl:"Shardul"},Akhil:{team:"MI",bat:"Rahul",bowl:"Bumrah"},Arijit:{team:"MI",bat:"SKY",bowl:"Shardul"},Ashish:{team:"MI",bat:"Rohit",bowl:"Boult"},Jay:{team:"MI",bat:"Rahul",bowl:"Shardul"},Mythy:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Rahul:{team:"MI",bat:"SKY",bowl:"Shardul"},Rakesh:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Vignan:{team:"MI",bat:"Rohit",bowl:"Hardik"},Yogi:{team:"MI",bat:"Ryan",bowl:"Santner"}},scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:-1,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:-1}},
+  {num:9,teams:"GT vs RR",winner:"RR",batsman:"Jurel",bowler:"Bishnoi",picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Siraj"},Akhil:{team:"GT",bat:"Sudharsan",bowl:"Rabada"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre"},Ashish:{team:"GT",bat:"Vaibhav",bowl:"Rashid Khan"},Jay:{team:"GT",bat:"Jurel",bowl:"Rashid"},Mythy:{team:"RR",bat:"Jurel",bowl:"Archer"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"RR",bat:"Sudharsan",bowl:"Rabada"},Vignan:{team:"GT",bat:"Butler",bowl:"Burger"},Yogi:{team:"RR",bat:"Jaiswal",bowl:"Burger"}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:0,Mythy:4,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
+  {num:10,teams:"SRH vs LSG",winner:"LSG",batsman:"Pant",bowler:"Shami",picks:{Abhijith:{team:"SRH",bat:"Ishan",bowl:"Digvesh"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Arijit:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Ashish:{team:"SRH",bat:"Klassen",bowl:"Harsh"},Jay:{team:"SRH",bat:"Head",bowl:"Shami"},Mythy:{team:"LSG",bat:"Ishan",bowl:"Malinga"},Rahul:{team:"SRH",bat:"Abhishek",bowl:"Jaydev"},Rakesh:{team:"SRH",bat:"Abhishek",bowl:"Jaydev"},Vignan:{team:"SRH",bat:"Abhishek",bowl:"Harshal"},Yogi:{team:"SRH",bat:"Head",bowl:"Mohsin"}},scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:-1,Jay:-1,Mythy:3,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:-1}},
+  {num:11,teams:"RCB vs CSK",winner:"RCB",batsman:"Tim David",bowler:"Bhuvi",picks:{Abhijith:{team:"RCB",bat:"Padikkal",bowl:"Duffy"},Akhil:{team:"RCB",bat:"Salt",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Kohli",bowl:"Krunal"},Ashish:{team:"RCB",bat:"DDP",bowl:"Bhuvi"},Jay:{team:"RCB",bat:"",bowl:""},Mythy:{team:"RCB",bat:"Kohli",bowl:"Duffy"},Rahul:{team:"RCB",bat:"Salt",bowl:"Noor"},Rakesh:{team:"RCB",bat:"Kohli",bowl:"Duffy"},Vignan:{team:"RCB",bat:"Salt",bowl:"Duffy"},Yogi:{team:"RCB",bat:"Salt",bowl:"Jamie"}},scores:{Abhijith:3,Akhil:4,Arijit:3,Ashish:4,Jay:3,Mythy:3,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:12,teams:"PBKS vs KKR",winner:"Abandoned",batsman:"",bowler:"",picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Vyshak"},Akhil:{team:"PBKS",bat:"Prabhsimran",bowl:"Chahal"},Arijit:{team:"PBKS",bat:"Finn",bowl:"Chahal"},Ashish:{team:"KKR",bat:"Green",bowl:"Tyagi"},Jay:{team:"PBKS",bat:"Shreyas",bowl:"Vyshak"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Jansen"},Rahul:{team:"PBKS",bat:"Raghuvanshi",bowl:"Jansen"},Rakesh:{team:"KKR",bat:"Rahane",bowl:"Narine"},Vignan:{team:"PBKS",bat:"Raghuvanshi",bowl:"Vyshak"},Yogi:{team:"PBKS",bat:"Finn",bowl:"Narine"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:13,teams:"MI vs RR",winner:"RR",batsman:"Jaiswal",bowler:"",picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Deshpande"},Akhil:{team:"MI",bat:"Rohit",bowl:"Shardul"},Arijit:{team:"MI",bat:"SKY",bowl:"Boult"},Ashish:{team:"MI",bat:"Rohit",bowl:"Boult"},Jay:{team:"RR",bat:"Vaibhav",bowl:"Bumrah"},Mythy:{team:"RR",bat:"Rohit",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Ryan",bowl:"Boult"},Rakesh:{team:"RR",bat:"Vaibhav",bowl:"Bumrah"},Vignan:{team:"MI",bat:"Vaibhav",bowl:"Boult"},Yogi:{team:"MI",bat:"Ryan",bowl:"Boult"}},scores:{Abhijith:3,Akhil:-1,Arijit:-1,Ashish:-1,Jay:3,Mythy:3,Rahul:-1,Rakesh:3,Vignan:-1,Yogi:-1}},
+  {num:14,teams:"DC vs GT",winner:"GT",batsman:"Rahul",bowler:"Rashid",picks:{Abhijith:{team:"DC",bat:"TBD",bowl:"TBD"},Akhil:{team:"GT",bat:"Buttler",bowl:"Rashid"},Arijit:{team:"DC",bat:"Butler",bowl:"Axar"},Ashish:{team:"DC",bat:"Sudharshan",bowl:"Axar"},Jay:{team:"GT",bat:"Sudharshan",bowl:"Rabada"},Mythy:{team:"GT",bat:"Rahul",bowl:"Rashid"},Rahul:{team:"GT",bat:"Gill",bowl:"Axar"},Rakesh:{team:"GT",bat:"Butler",bowl:"Rabada"},Vignan:{team:"DC",bat:"Nissanka",bowl:"Kuldeep"},Yogi:{team:"GT",bat:"Sudharshan",bowl:"Siraj"}},scores:{Abhijith:-1,Akhil:4,Arijit:-1,Ashish:-1,Jay:3,Mythy:5,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
+  {num:15,teams:"KKR vs LSG",winner:"LSG",batsman:"Mukul",bowler:"Anukul Roy",picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Saini"},Akhil:{team:"LSG",bat:"Finn",bowl:"Avesh"},Arijit:{team:"LSG",bat:"Finn",bowl:"Shami"},Ashish:{team:"LSG",bat:"Pant",bowl:"Prince"},Jay:{team:"LSG",bat:"Fin Allen",bowl:"Shami"},Mythy:{team:"LSG",bat:"Markram",bowl:"Shami"},Rahul:{team:"LSG",bat:"Pooran",bowl:"Shami"},Rakesh:{team:"KKR",bat:"",bowl:""},Vignan:{team:"LSG",bat:"",bowl:""},Yogi:{team:"KKR",bat:"",bowl:""}},scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
+  {num:16,teams:"RCB vs RR",winner:"RR",batsman:"Jurel",bowler:"Krunal",picks:{Abhijith:{team:"RCB",bat:"Vaibhav",bowl:"Bishnoi"},Akhil:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Ashish:{team:"RR",bat:"Parag",bowl:"Sandeep"},Jay:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Mythy:{team:"RCB",bat:"Salt",bowl:"Hazlewood"},Rahul:{team:"RCB",bat:"Virat",bowl:"Hazlewood"},Rakesh:{team:"RCB",bat:"Devdutt",bowl:"Bhuvi"},Vignan:{team:"RCB",bat:"Jaiswal",bowl:"Burger"},Yogi:{team:"RR",bat:"Jaiswal",bowl:"Bishnoi"}},scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:3}},
+  {num:17,teams:"PBKS vs SRH",winner:"PBKS",batsman:"Abhishek",bowler:"Shivang",picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Arijit:{team:"PBKS",bat:"Abhishek",bowl:"Harsh"},Ashish:{team:"SRH",bat:"Travis",bowl:"Malinga"},Jay:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Mythy:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Rahul:{team:"SRH",bat:"Ishan",bowl:"Harsh Dubey"},Rakesh:{team:"SRH",bat:"Abhishek",bowl:"Harsh"},Vignan:{team:"PBKS",bat:"Prabhsimran",bowl:"Vyshak"},Yogi:{team:"SRH",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:0,Arijit:4,Ashish:-1,Jay:0,Mythy:1,Rahul:-1,Rakesh:0,Vignan:3,Yogi:-1}},
+  {num:18,teams:"CSK vs DC",winner:"CSK",batsman:"Sanju",bowler:"Overton",picks:{Abhijith:{team:"DC",bat:"",bowl:""},Akhil:{team:"DC",bat:"",bowl:""},Arijit:{team:"DC",bat:"KL",bowl:"Kuldeep"},Ashish:{team:"CSK",bat:"Ayush",bowl:"Natarajan"},Jay:{team:"DC",bat:"Rizvi",bowl:"Kuldeep"},Mythy:{team:"CSK",bat:"Ruturaj",bowl:"Noor"},Rahul:{team:"DC",bat:"Samson",bowl:"Ngidi"},Rakesh:{team:"DC",bat:"KL Rahul",bowl:"Axar"},Vignan:{team:"DC",bat:"",bowl:""},Yogi:{team:"DC",bat:"Pathum",bowl:"Noor"}},scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:3,Jay:-1,Mythy:3,Rahul:0,Rakesh:-1,Vignan:-1,Yogi:-1}},
+  {num:19,teams:"LSG vs GT",winner:"GT",batsman:"Butler",bowler:"Prasidh",picks:{Abhijith:{team:"LSG",bat:"Badoni",bowl:"Shami"},Akhil:{team:"GT",bat:"Sudharsan",bowl:"Rashid"},Arijit:{team:"GT",bat:"Butler",bowl:"Rashid"},Ashish:{team:"LSG",bat:"Marsh",bowl:"Shami"},Jay:{team:"GT",bat:"Sudharshan",bowl:"Rashid"},Mythy:{team:"GT",bat:"Gill",bowl:"Rashid"},Rahul:{team:"GT",bat:"Butler",bowl:"Prasidh"},Rakesh:{team:"GT",bat:"Gill",bowl:"Rashid"},Vignan:{team:"LSG",bat:"Markram",bowl:"Prince"},Yogi:{team:"GT",bat:"Marsh",bowl:"Rashid"}},scores:{Abhijith:-1,Akhil:3,Arijit:4,Ashish:-1,Jay:3,Mythy:3,Rahul:5,Rakesh:3,Vignan:-1,Yogi:3}},
+  {num:20,teams:"MI vs RCB",winner:"RCB",batsman:"Salt",bowler:"Suyash",picks:{Abhijith:{team:"MI",bat:"Rohit",bowl:"Bumrah"},Akhil:{team:"MI",bat:"Rohit",bowl:"Krunal"},Arijit:{team:"RCB",bat:"SKY",bowl:"Boult"},Ashish:{team:"MI",bat:"Tilak",bowl:"Ghanzafar"},Jay:{team:"MI",bat:"SKY",bowl:"Shardul"},Mythy:{team:"RCB",bat:"SKY",bowl:"Krunal"},Rahul:{team:"RCB",bat:"Ryan",bowl:"Shardul"},Rakesh:{team:"RCB",bat:"SKY",bowl:"Krunal"},Vignan:{team:"MI",bat:"Tilak",bowl:"Shardul"},Yogi:{team:"RCB",bat:"Rohit",bowl:"Santner"}},scores:{Abhijith:-1,Akhil:-1,Arijit:3,Ashish:-1,Jay:-1,Mythy:3,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
+  {num:21,teams:"SRH vs RR",winner:"SRH",batsman:"Ishan Kishan",bowler:"Sakid Hussain",picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Bishnoi"},Akhil:{team:"SRH",bat:"Head",bowl:"Bishnoi"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Bishnoi"},Ashish:{team:"SRH",bat:"Abhishek",bowl:"Shivang"},Jay:{team:"RR",bat:"Head",bowl:"Nandre"},Mythy:{team:"RR",bat:"Jaiswal",bowl:"Shivang"},Rahul:{team:"SRH",bat:"Kishan",bowl:"Praful"},Rakesh:{team:"SRH",bat:"Ishan",bowl:"Dubey"},Vignan:{team:"RR",bat:"Jaiswal",bowl:"Sandeep"},Yogi:{team:"RR",bat:"Abhishek",bowl:"Bishnoi"}},scores:{Abhijith:-1,Akhil:3,Arijit:-1,Ashish:3,Jay:-1,Mythy:-1,Rahul:4,Rakesh:4,Vignan:-1,Yogi:-1}},
+  {num:22,teams:"CSK vs KKR",winner:"CSK",batsman:"Sanju",bowler:"Noor",picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Vaibhav Arora"},Akhil:{team:"CSK",bat:"Ruturaj",bowl:"Overton"},Arijit:{team:"CSK",bat:"Raghuvanshi",bowl:"Overton"},Ashish:{team:"CSK",bat:"Gaikwad",bowl:"Noor"},Jay:{team:"CSK",bat:"Raghuvanshi",bowl:"Overton"},Mythy:{team:"CSK",bat:"Sanju",bowl:"Gurjapneet"},Rahul:{team:"CSK",bat:"Raghuvanshi",bowl:"Kamboj"},Rakesh:{team:"KKR",bat:"Fin Allen",bowl:"Vaibhav Arora"},Vignan:{team:"CSK",bat:"Samson",bowl:""},Yogi:{team:"KKR",bat:"",bowl:""}},scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:4,Jay:3,Mythy:4,Rahul:3,Rakesh:-1,Vignan:4,Yogi:-1}},
+  {num:23,teams:"RCB vs LSG",winner:"RCB",batsman:"Kohli",bowler:"Rasikh",picks:{Abhijith:{team:"RCB",bat:"Kohli",bowl:"Suyash"},Akhil:{team:"RCB",bat:"Rajat",bowl:"Prince"},Arijit:{team:"RCB",bat:"Rajat",bowl:"Rasikh"},Ashish:{team:"RCB",bat:"Kohli",bowl:"Pandya"},Jay:{team:"LSG",bat:"",bowl:""},Mythy:{team:"LSG",bat:"Salt",bowl:"Prince"},Rahul:{team:"RCB",bat:"DDP",bowl:"Josh"},Rakesh:{team:"RCB",bat:"Padikkal",bowl:"Krunal"},Vignan:{team:"RCB",bat:"Padikkal",bowl:"Digvesh"},Yogi:{team:"RCB",bat:"Padikkal",bowl:"Digvesh"}},scores:{Abhijith:4,Akhil:3,Arijit:4,Ashish:4,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:24,teams:"MI vs PBKS",winner:"PBKS",batsman:"De Kock",bowler:"Arshdeep",picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Bartlett"},Akhil:{team:"PBKS",bat:"Prabhsimran",bowl:"Chahal"},Arijit:{team:"MI",bat:"Shreyas",bowl:"Shardul"},Ashish:{team:"PBKS",bat:"Arya",bowl:"Chahal"},Jay:{team:"MI",bat:"SKY",bowl:"Deepak"},Mythy:{team:"MI",bat:"De Kock",bowl:"Bumrah"},Rahul:{team:"PBKS",bat:"Prabhsimran",bowl:"Jansen"},Rakesh:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Vignan:{team:"MI",bat:"",bowl:""},Yogi:{team:"PBKS",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:3,Arijit:-1,Ashish:3,Jay:-1,Mythy:0,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
+  {num:25,teams:"GT vs KKR",winner:"GT",batsman:"Gill",bowler:"Rabada",picks:{Abhijith:{team:"KKR",bat:"Raghuvanshi",bowl:"Vaibhav"},Akhil:{team:"GT",bat:"Buttler",bowl:"Rabada"},Arijit:{team:"GT",bat:"Butler",bowl:"Prasidh"},Ashish:{team:"KKR",bat:"Tim",bowl:"Arora"},Jay:{team:"GT",bat:"Sudharsan",bowl:"Prasidh"},Mythy:{team:"GT",bat:"Gill",bowl:"Prasidh"},Rahul:{team:"GT",bat:"Sai",bowl:"Prasidh"},Rakesh:{team:"GT",bat:"Sai Sudharshan",bowl:"Rabada"},Vignan:{team:"GT",bat:"Sai",bowl:"Rashid"},Yogi:{team:"GT",bat:"Sai Sudharshan",bowl:"Prasidh"}},scores:{Abhijith:-1,Akhil:4,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:4,Vignan:3,Yogi:3}},
 ];
 
 let charts = {};
-let currentTab = 'matchview';
 let selectedPlayers = new Set(PLAYERS);
+let currentNav = 'standings';
 
+// ── MOBILE NAV ──────────────────────────────────────────────
+function navTo(section) {
+  currentNav = section;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === section));
+  const sectionMap = {standings:'sec-standings', charts:'sec-charts', history:'sec-history', update:'sec-update'};
+  document.querySelectorAll('.mobile-section').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById(sectionMap[section]);
+  if (target) target.classList.add('active');
+  // lazy render charts when first shown
+  if (section === 'charts' && !charts.progress) { renderProgressChart(); renderAvgChart(); }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── DATA FUNCTIONS ──────────────────────────────────────────
 function getCumulativeScores() {
-  const cum = {};
-  PLAYERS.forEach(p => cum[p] = []);
-  let running = {};
-  PLAYERS.forEach(p => running[p] = 0);
-  matchData.forEach(m => {
-    PLAYERS.forEach(p => {
-      running[p] = (running[p] || 0) + (m.scores[p] || 0);
-      cum[p].push(running[p]);
-    });
-  });
+  const cum = {}; PLAYERS.forEach(p => cum[p] = []);
+  let running = {}; PLAYERS.forEach(p => running[p] = 0);
+  matchData.forEach(m => { PLAYERS.forEach(p => { running[p] = (running[p]||0)+(m.scores[p]||0); cum[p].push(running[p]); }); });
   return cum;
 }
-
 function getFinalStandings() {
-  const cum = getCumulativeScores();
-  const totals = {};
-  PLAYERS.forEach(p => { const arr = cum[p]; totals[p] = arr.length > 0 ? arr[arr.length-1] : 0; });
+  const cum = getCumulativeScores(), totals = {};
+  PLAYERS.forEach(p => { const a = cum[p]; totals[p] = a.length ? a[a.length-1] : 0; });
   return totals;
 }
-
 function getWinRates() {
   const stats = {};
-  const playedMatches = matchData.filter(m => m.winner !== 'Abandoned');
-  const batMatches = playedMatches.filter(m => m.batsman);
-  const bowlMatches = playedMatches.filter(m => m.bowler);
+  const played = matchData.filter(m => m.winner !== 'Abandoned');
+  const batM = played.filter(m => m.batsman), bowlM = played.filter(m => m.bowler);
   PLAYERS.forEach(p => {
-    let teamCorrect=0, batCorrect=0, bowlCorrect=0;
-    playedMatches.forEach(m => {
-      const pk = m.picks[p] || {};
-      const team = (pk.team||'').toUpperCase();
-      const winU = m.winner.toUpperCase();
-      if (team && !['1','2','LATE'].includes(team) && (team===winU || winU.includes(team) || team.includes(winU))) teamCorrect++;
-    });
-    batMatches.forEach(m => {
-      const bat = (m.picks[p]||{}).bat||'';
-      if (bat && bat.toLowerCase().split(' ').some(w=>w.length>2 && m.batsman.toLowerCase().includes(w))) batCorrect++;
-    });
-    bowlMatches.forEach(m => {
-      const bowl = (m.picks[p]||{}).bowl||'';
-      if (bowl && bowl.toLowerCase().split(' ').some(w=>w.length>2 && m.bowler.toLowerCase().includes(w))) bowlCorrect++;
-    });
-    const tT=playedMatches.length, bT=batMatches.length, blT=bowlMatches.length;
-    stats[p] = {teamCorrect,teamTotal:tT,teamRate:tT?(teamCorrect/tT*100):0,batCorrect,batTotal:bT,batRate:bT?(batCorrect/bT*100):0,bowlCorrect,bowlTotal:blT,bowlRate:blT?(bowlCorrect/blT*100):0};
+    let tc=0, bc=0, blc=0;
+    played.forEach(m => { const t=(m.picks[p]||{}).team||''; const w=m.winner.toUpperCase(),tu=t.toUpperCase(); if(t&&(tu===w||w.includes(tu)||tu.includes(w))) tc++; });
+    batM.forEach(m => { const b=(m.picks[p]||{}).bat||''; if(b&&b.toLowerCase().split(' ').some(w=>w.length>2&&m.batsman.toLowerCase().includes(w))) bc++; });
+    bowlM.forEach(m => { const b=(m.picks[p]||{}).bowl||''; if(b&&b.toLowerCase().split(' ').some(w=>w.length>2&&m.bowler.toLowerCase().includes(w))) blc++; });
+    const tT=played.length,bT=batM.length,blT=bowlM.length;
+    stats[p]={teamCorrect:tc,teamTotal:tT,teamRate:tT?tc/tT*100:0,batCorrect:bc,batTotal:bT,batRate:bT?bc/bT*100:0,bowlCorrect:blc,bowlTotal:blT,bowlRate:blT?blc/blT*100:0};
   });
   return stats;
 }
-
 function getRecentForm(n=8) {
-  const recent = matchData.slice(-n);
-  const form = {};
-  PLAYERS.forEach(p => {
-    form[p] = recent.map(m => {
-      const s = m.scores[p];
-      if (s===undefined) return 'x';
-      if (s>0) return 'w';
-      if (s<0) return 'l';
-      return 'h';
-    });
-  });
+  const recent=matchData.slice(-n), form={};
+  PLAYERS.forEach(p=>{ form[p]=recent.map(m=>{ const s=m.scores[p]; return s===undefined?'x':s>0?'w':s<0?'l':'h'; }); });
   return form;
 }
-
 function getAvgPerMatch() {
-  const avg = {};
-  PLAYERS.forEach(p => {
-    const total = matchData.reduce((s,m) => s+(m.scores[p]||0),0);
-    const games = matchData.filter(m => m.scores[p]!==undefined).length;
-    avg[p] = games ? total/games : 0;
-  });
+  const avg={};
+  PLAYERS.forEach(p=>{ const total=matchData.reduce((s,m)=>s+(m.scores[p]||0),0), games=matchData.filter(m=>m.scores[p]!==undefined).length; avg[p]=games?total/games:0; });
   return avg;
 }
-
-function renderAll() {
-  renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats();
-  renderProgressChart(); renderStreaks(); renderAvgChart();
-  if (currentTab==='matchview') renderMatchView(); else renderHistoryTable();
-}
-
 function getPicksStats() {
-  const bat={}, bowl={};
-  matchData.forEach(m => {
-    if (m.winner==='Abandoned') return;
-    PLAYERS.forEach(p => {
-      const pk=m.picks[p]||{};
-      const batName=(pk.bat||'').trim(), bowlName=(pk.bowl||'').trim();
-      if (batName) {
-        if (!bat[batName]) bat[batName]={picks:0,wins:0};
-        bat[batName].picks++;
-        if (m.batsman&&batName.toLowerCase().split(' ').some(w=>w.length>2&&m.batsman.toLowerCase().includes(w))) bat[batName].wins++;
-      }
-      if (bowlName) {
-        if (!bowl[bowlName]) bowl[bowlName]={picks:0,wins:0};
-        bowl[bowlName].picks++;
-        if (m.bowler&&bowlName.toLowerCase().split(' ').some(w=>w.length>2&&m.bowler.toLowerCase().includes(w))) bowl[bowlName].wins++;
-      }
-    });
-  });
+  const bat={},bowl={};
+  matchData.forEach(m=>{ if(m.winner==='Abandoned') return; PLAYERS.forEach(p=>{
+    const pk=m.picks[p]||{}, bn=(pk.bat||'').trim(), bln=(pk.bowl||'').trim();
+    if(bn){ if(!bat[bn]) bat[bn]={picks:0,wins:0}; bat[bn].picks++; if(m.batsman&&bn.toLowerCase().split(' ').some(w=>w.length>2&&m.batsman.toLowerCase().includes(w))) bat[bn].wins++; }
+    if(bln){ if(!bowl[bln]) bowl[bln]={picks:0,wins:0}; bowl[bln].picks++; if(m.bowler&&bln.toLowerCase().split(' ').some(w=>w.length>2&&m.bowler.toLowerCase().includes(w))) bowl[bln].wins++; }
+  }); });
   return {bat,bowl};
 }
 
-function renderPicksList(containerId, data, minPicks=1) {
-  const sorted = Object.entries(data).filter(([,s])=>s.picks>=minPicks).sort((a,b)=>b[1].picks-a[1].picks);
-  const html = sorted.map(([name,s]) => {
-    const pct=s.picks>0?Math.round(s.wins/s.picks*100):0;
-    const col=pct>=40?'var(--green)':pct>=20?'var(--yellow)':'var(--red)';
-    return `<div style="display:grid;grid-template-columns:1fr auto auto 60px;gap:0.5rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid var(--border)">
-      <span style="font-size:0.8rem;font-weight:600">${name}</span>
-      <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">${s.picks}</span>
-      <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--green)">${s.wins}</span>
-      <div style="display:flex;align-items:center;gap:5px">
-        <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:3px"></div></div>
-        <span style="font-family:var(--font-mono);font-size:0.68rem;color:${col};min-width:28px;text-align:right">${pct}%</span>
-      </div></div>`;
-  }).join('');
-  document.getElementById(containerId).innerHTML = html||'<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0">No data yet</p>';
+// ── RENDER ALL ──────────────────────────────────────────────
+function renderAll() {
+  renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView();
+  // charts: render immediately on desktop, defer on mobile until tab is opened
+  const isMobile = window.innerWidth < 640;
+  if (!isMobile || currentNav === 'charts') { renderProgressChart(); renderAvgChart(); }
 }
 
-function renderPicksStats() {
-  const {bat,bowl}=getPicksStats();
-  renderPicksList('picks-bat-list',bat,2);
-  renderPicksList('picks-bowl-list',bowl,2);
-}
-
-function switchPicksTab(tab) {
-  document.querySelectorAll('[data-ptab]').forEach(t=>t.classList.toggle('active',t.dataset.ptab===tab));
-  document.getElementById('picks-bat-wrap').style.display=tab==='bat'?'block':'none';
-  document.getElementById('picks-bowl-wrap').style.display=tab==='bowl'?'block':'none';
-}
-
+// ── METRICS ─────────────────────────────────────────────────
 function renderMetrics() {
-  const standings=getFinalStandings();
-  const sorted=Object.entries(standings).sort((a,b)=>b[1]-a[1]);
-  const leader=sorted[0], second=sorted[1];
-  const wr=getWinRates();
-  const bestWR=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate)[0];
+  const s=getFinalStandings(), sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const wr=getWinRates(), bestWR=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate)[0];
   const totalPreds=Object.values(wr).reduce((s,v)=>s+v.teamTotal,0);
   const avgAcc=Object.values(wr).reduce((s,v)=>s+v.teamRate,0)/PLAYERS.length;
   document.getElementById('m-played').textContent=matchData.length;
-  document.getElementById('m-leader').textContent=leader[0];
-  document.getElementById('m-leader-pts').textContent=leader[1]+' pts';
-  document.getElementById('m-gap').textContent=(leader[1]-second[1])+' pts';
-  document.getElementById('m-winrate').textContent=bestWR[1].teamRate.toFixed(1)+'%';
+  document.getElementById('m-leader').textContent=sorted[0][0];
+  document.getElementById('m-leader-pts').textContent=sorted[0][1]+' pts';
+  document.getElementById('m-gap').textContent=(sorted[0][1]-sorted[1][1])+' pts';
+  document.getElementById('m-winrate').textContent=bestWR[1].teamRate.toFixed(0)+'%';
   document.getElementById('m-winrate-player').textContent=bestWR[0];
   document.getElementById('m-total-preds').textContent=totalPreds;
   document.getElementById('m-overall-acc').textContent=avgAcc.toFixed(1)+'%';
 }
 
+// ── LEADERBOARD ──────────────────────────────────────────────
 function renderLeaderboard() {
-  const standings=getFinalStandings();
-  const cum=getCumulativeScores();
-  const sorted=Object.entries(standings).sort((a,b)=>b[1]-a[1]);
-  const max=sorted[0][1];
-  const rankClasses=['gold','silver','bronze'];
-  const rankSymbols=['1','2','3'];
-  const html=sorted.map(([p,pts],i)=>{
-    const last=matchData.length>0?(matchData[matchData.length-1].scores[p]||0):0;
-    const pct=max>0?(pts/max*100):0;
-    const rc=i<3?rankClasses[i]:'', rs=i<3?rankSymbols[i]:(i+1);
+  const s=getFinalStandings(), sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]), max=sorted[0][1];
+  const rc=['gold','silver','bronze'], rs=['1','2','3'];
+  document.getElementById('leaderboard').innerHTML = sorted.map(([p,pts],i)=>{
+    const last=matchData.length?(matchData[matchData.length-1].scores[p]||0):0;
+    const pct=max?pts/max*100:0;
     const dc=last>0?'delta-pos':last<0?'delta-neg':'delta-zero';
     const ds=last>0?'+'+last:last===0?'±0':last;
     return `<div class="lb-row">
-      <span class="lb-rank ${rc}">${rs}</span>
+      <span class="lb-rank ${i<3?rc[i]:''}">${i<3?rs[i]:i+1}</span>
       <span class="lb-name" style="color:${COLORS[p]}">${p}</span>
       <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${COLORS[p]}"></div></div>
       <span class="lb-pts">${pts}</span>
       <span class="lb-delta ${dc}">${ds}</span>
     </div>`;
   }).join('');
-  document.getElementById('leaderboard').innerHTML=html;
 }
 
+// ── ACCURACY ────────────────────────────────────────────────
 function renderAccuracy() {
-  const wr=getWinRates();
-  const sorted=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate);
-  const html=sorted.map(([p,s])=>{
-    const pct=s.teamRate;
-    const color=pct>=60?'#34d399':pct>=50?'#fbbf24':'#f87171';
-    const batCol=s.batRate>=20?'#34d399':'#f87171';
-    const bowlCol=s.bowlRate>=20?'#34d399':'#f87171';
-    return `<div style="padding:0.55rem 0;border-bottom:1px solid var(--border)">
-      <div style="display:grid;grid-template-columns:1fr auto auto 80px;gap:0.5rem;align-items:center;margin-bottom:4px">
-        <span style="font-weight:700;color:${COLORS[p]}">${p}</span>
-        <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">${s.teamCorrect}/${s.teamTotal}</span>
-        <span style="font-family:var(--font-mono);font-size:0.8rem;color:${color};font-weight:500">${pct.toFixed(1)}%</span>
+  const wr=getWinRates(), sorted=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate);
+  document.getElementById('accuracy-list').innerHTML = sorted.map(([p,s])=>{
+    const pct=s.teamRate, color=pct>=60?'#34d399':pct>=50?'#fbbf24':'#f87171';
+    const bc=s.batRate>=20?'#34d399':'#f87171', blc=s.bowlRate>=20?'#34d399':'#f87171';
+    return `<div style="padding:0.5rem 0;border-bottom:1px solid var(--border)">
+      <div style="display:grid;grid-template-columns:1fr auto auto 70px;gap:0.45rem;align-items:center;margin-bottom:3px">
+        <span style="font-weight:700;color:${COLORS[p]};font-size:0.88rem">${p}</span>
+        <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">${s.teamCorrect}/${s.teamTotal}</span>
+        <span style="font-family:var(--font-mono);font-size:0.75rem;color:${color};font-weight:500">${pct.toFixed(1)}%</span>
         <div class="acc-bar-wrap"><div class="acc-bar" style="width:${pct}%;background:${color}"></div></div>
       </div>
-      <div style="display:flex;gap:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);padding-left:2px">
-        <span>🏏 bat <span style="color:${batCol}">${s.batCorrect}/${s.batTotal} (${s.batRate.toFixed(0)}%)</span></span>
-        <span>🎳 bowl <span style="color:${bowlCol}">${s.bowlCorrect}/${s.bowlTotal} (${s.bowlRate.toFixed(0)}%)</span></span>
+      <div style="display:flex;gap:0.8rem;font-family:var(--font-mono);font-size:0.6rem;color:var(--muted)">
+        <span>🏏 <span style="color:${bc}">${s.batCorrect}/${s.batTotal} (${s.batRate.toFixed(0)}%)</span></span>
+        <span>🎳 <span style="color:${blc}">${s.bowlCorrect}/${s.bowlTotal} (${s.bowlRate.toFixed(0)}%)</span></span>
       </div></div>`;
   }).join('');
-  document.getElementById('accuracy-list').innerHTML=html;
 }
 
+// ── PICKS STATS ──────────────────────────────────────────────
+function renderPicksList(id, data, min=2) {
+  const sorted=Object.entries(data).filter(([,s])=>s.picks>=min).sort((a,b)=>b[1].picks-a[1].picks);
+  document.getElementById(id).innerHTML = sorted.map(([name,s])=>{
+    const pct=s.picks?Math.round(s.wins/s.picks*100):0;
+    const col=pct>=40?'var(--green)':pct>=20?'var(--yellow)':'var(--red)';
+    return `<div class="picks-row">
+      <span style="font-size:0.78rem;font-weight:600">${name}</span>
+      <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--muted)">${s.picks}</span>
+      <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--green)">${s.wins}</span>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col}"></div></div>
+        <span style="font-family:var(--font-mono);font-size:0.62rem;color:${col};min-width:26px;text-align:right">${pct}%</span>
+      </div></div>`;
+  }).join('')||'<p style="color:var(--muted);font-size:0.78rem;padding:0.5rem 0">No data yet</p>';
+}
+function renderPicksStats() { const {bat,bowl}=getPicksStats(); renderPicksList('picks-bat-list',bat); renderPicksList('picks-bowl-list',bowl); }
+function switchPicksTab(tab) {
+  document.querySelectorAll('[data-ptab]').forEach(t=>t.classList.toggle('active',t.dataset.ptab===tab));
+  document.getElementById('picks-bat-wrap').style.display=tab==='bat'?'block':'none';
+  document.getElementById('picks-bowl-wrap').style.display=tab==='bowl'?'block':'none';
+}
+
+// ── PROGRESS CHART ───────────────────────────────────────────
 function renderProgressChart() {
-  const cum=getCumulativeScores();
-  const labels=matchData.map(m=>'M'+m.num);
+  const cum=getCumulativeScores(), labels=matchData.map(m=>'M'+m.num);
   let activePlayer=null;
   if (charts.progress) charts.progress.destroy();
   const ctx=document.getElementById('progressChart').getContext('2d');
   charts.progress=new Chart(ctx,{
     type:'line',
-    data:{labels,datasets:PLAYERS.map(p=>({label:p,data:cum[p],borderColor:COLORS[p],backgroundColor:COLORS[p]+'18',borderWidth:2,pointRadius:3,pointHoverRadius:6,tension:0.3,fill:false}))},
+    data:{labels,datasets:PLAYERS.map(p=>({label:p,data:cum[p],borderColor:COLORS[p],backgroundColor:COLORS[p]+'18',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,fill:false}))},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2330',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleFont:{family:"'DM Mono', monospace",size:11},bodyFont:{family:"'DM Mono', monospace",size:11},
-        callbacks:{afterTitle:(items)=>{const idx=items[0].dataIndex;return matchData[idx]?matchData[idx].teams:'';},
-          label:(item)=>{if(activePlayer&&item.dataset.label!==activePlayer)return null;return ` ${item.dataset.label}: ${item.parsed.y}`;}}}},
-      scales:{x:{ticks:{color:'#6b7280',font:{size:10,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7280',font:{size:10,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2330',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleFont:{family:"'DM Mono',monospace",size:10},bodyFont:{family:"'DM Mono',monospace",size:10},
+        callbacks:{afterTitle:items=>matchData[items[0].dataIndex]?.teams||'',label:item=>{if(activePlayer&&item.dataset.label!==activePlayer)return null;return ` ${item.dataset.label}: ${item.parsed.y}`;}} }},
+      scales:{x:{ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
   const legend=document.getElementById('progress-legend');
   legend.innerHTML='';
   const allPill=document.createElement('span');
-  allPill.id='prog-all';
   allPill.textContent='All';
-  allPill.style.cssText='font-family:var(--font-mono);font-size:0.7rem;padding:3px 10px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);color:var(--text);background:rgba(255,255,255,0.1);transition:opacity 0.15s';
+  allPill.style.cssText='font-family:var(--font-mono);font-size:0.65rem;padding:3px 9px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);color:var(--text);background:rgba(255,255,255,0.1)';
   allPill.onclick=()=>{
     activePlayer=null;
     charts.progress.data.datasets.forEach(ds=>{ds.borderWidth=2;ds.borderColor=COLORS[ds.label];ds.backgroundColor=COLORS[ds.label]+'18';ds.fill=false;});
     charts.progress.update();
     document.querySelectorAll('.prog-pill').forEach(p=>p.style.opacity='1');
-    allPill.style.background='rgba(255,255,255,0.1)';allPill.style.color='var(--text)';
   };
   legend.appendChild(allPill);
   PLAYERS.forEach(p=>{
     const pill=document.createElement('span');
     pill.className='prog-pill';pill.textContent=p;
-    pill.style.cssText=`font-family:var(--font-mono);font-size:0.7rem;font-weight:500;padding:3px 10px;border-radius:20px;cursor:pointer;border:1.5px solid ${COLORS[p]};color:${COLORS[p]};background:${COLORS[p]}22;transition:opacity 0.15s,background 0.15s`;
+    pill.style.cssText=`font-family:var(--font-mono);font-size:0.65rem;padding:3px 9px;border-radius:20px;cursor:pointer;border:1.5px solid ${COLORS[p]};color:${COLORS[p]};background:${COLORS[p]}22`;
     pill.onclick=()=>{
       if(activePlayer===p){allPill.onclick();return;}
       activePlayer=p;
-      charts.progress.data.datasets.forEach(ds=>{const isActive=ds.label===p;ds.borderWidth=isActive?3:1;ds.borderColor=isActive?COLORS[ds.label]:COLORS[ds.label]+'30';ds.backgroundColor=isActive?COLORS[ds.label]+'25':'transparent';ds.fill=isActive;});
+      charts.progress.data.datasets.forEach(ds=>{const a=ds.label===p;ds.borderWidth=a?3:1;ds.borderColor=a?COLORS[ds.label]:COLORS[ds.label]+'30';ds.backgroundColor=a?COLORS[ds.label]+'25':'transparent';ds.fill=a;});
       charts.progress.update();
-      document.querySelectorAll('.prog-pill').forEach(pl=>{pl.style.opacity=pl.textContent===p?'1':'0.3';});
-      allPill.style.background='transparent';allPill.style.color='var(--muted)';
+      document.querySelectorAll('.prog-pill').forEach(pl=>pl.style.opacity=pl.textContent===p?'1':'0.3');
     };
     legend.appendChild(pill);
   });
 }
 
-function renderStreaks() {
-  const form=getRecentForm(8);
-  const standings=getFinalStandings();
-  const sorted=Object.entries(standings).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
-  const html=sorted.map(p=>{
-    const dots=form[p].map(r=>{
-      if(r==='w') return `<div class="dot dot-w" title="win"></div>`;
-      if(r==='l') return `<div class="dot dot-l" title="loss"></div>`;
-      if(r==='h') return `<div class="dot dot-h" title="half"></div>`;
-      return `<div class="dot dot-x"></div>`;
-    }).join('');
-    const wins=form[p].filter(r=>r==='w').length;
-    const pct=form[p].length?Math.round(wins/form[p].length*100):0;
-    const col=pct>=60?'var(--green)':pct>=40?'var(--yellow)':'var(--red)';
-    return `<div class="streak-row"><span class="streak-name" style="color:${COLORS[p]}">${p}</span><div class="streak-dots">${dots}</div><span class="streak-label" style="color:${col}">${wins}/8</span></div>`;
-  }).join('');
-  document.getElementById('streaks').innerHTML=html;
-}
-
+// ── AVG CHART ────────────────────────────────────────────────
 function renderAvgChart() {
-  const avg=getAvgPerMatch();
-  const sorted=Object.entries(avg).sort((a,b)=>b[1]-a[1]);
+  const avg=getAvgPerMatch(), sorted=Object.entries(avg).sort((a,b)=>b[1]-a[1]);
   if (charts.avg) charts.avg.destroy();
-  const h=sorted.length*40+60;
+  const h=sorted.length*38+50;
   document.getElementById('avgChart').parentElement.style.height=h+'px';
   const ctx=document.getElementById('avgChart').getContext('2d');
   charts.avg=new Chart(ctx,{
     type:'bar',
     data:{labels:sorted.map(([p])=>p),datasets:[{data:sorted.map(([,v])=>parseFloat(v.toFixed(2))),backgroundColor:sorted.map(([p])=>COLORS[p]+'cc'),borderColor:sorted.map(([p])=>COLORS[p]),borderWidth:1,borderRadius:4}]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2330',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,bodyFont:{family:"'DM Mono'",size:11},callbacks:{label:ctx=>' '+ctx.raw.toFixed(2)+' pts/match'}}},
-      scales:{x:{ticks:{color:'#6b7280',font:{size:10,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#f0f2f7',font:{size:12,family:"'Syne'",weight:'700'}},grid:{display:false}}}}
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2330',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,bodyFont:{family:"'DM Mono'",size:10},callbacks:{label:c=>' '+c.raw.toFixed(2)+' pts/match'}}},
+      scales:{x:{ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#f0f2f7',font:{size:11,family:"'Syne'",weight:'700'}},grid:{display:false}}}}
   });
 }
 
-function renderHistoryTable() {
-  const cols=selectedPlayers.size>0?[...selectedPlayers].filter(p=>PLAYERS.includes(p)):PLAYERS;
-  let header=`<thead><tr><th>Match</th><th>Teams</th><th>Winner</th>`;
-  cols.forEach(p=>header+=`<th style="color:${COLORS[p]}">${p}</th>`);
-  header+=`</tr></thead>`;
-  let body='<tbody>';
-  matchData.forEach(m=>{
-    body+=`<tr><td style="font-family:var(--font-mono);color:var(--muted)">M${m.num}</td><td style="color:var(--muted);font-size:0.75rem">${m.teams}</td><td><span class="team-pill">${m.winner}</span></td>`;
-    cols.forEach(p=>{
-      const pk=m.picks[p]||{};
-      const team=pk.team||'\u2014', bat=pk.bat||'', bowl=pk.bowl||'';
-      const score=m.scores[p];
-      const winU=m.winner.toUpperCase(), teamU=team.toUpperCase();
-      const correct=team!=='\u2014'&&(teamU===winU||winU.includes(teamU)||teamU.includes(winU));
-      const sc=score!==undefined?score:'';
-      const cc=score>0?'cell-win':score<0?'cell-loss':score===0?'cell-half':'';
-      const sd=score>0?'+'+score:sc;
-      const sub=[bat,bowl].filter(Boolean).join(' / ');
-      body+=`<td><span style="font-size:0.72rem;color:${correct?'var(--green)':'var(--muted)'}">${team}</span>${sub?`<span style="font-size:0.62rem;color:var(--muted);display:block;line-height:1.3">${sub}</span>`:''  }${sc!==''?`<span class="${cc}" style="font-size:0.7rem">${sd}</span>`:''}</td>`;
+// ── STREAKS ──────────────────────────────────────────────────
+function renderStreaks() {
+  const form=getRecentForm(8), s=getFinalStandings();
+  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  document.getElementById('streaks').innerHTML = sorted.map(p=>{
+    const dots=form[p].map(r=>`<div class="dot dot-${r}" title="${r==='w'?'win':r==='l'?'loss':r==='h'?'draw':'?'}"></div>`).join('');
+    const wins=form[p].filter(r=>r==='w').length;
+    const col=wins>=5?'var(--green)':wins>=3?'var(--yellow)':'var(--red)';
+    return `<div class="streak-row"><span class="streak-name" style="color:${COLORS[p]}">${p}</span><div class="streak-dots">${dots}</div><span class="streak-label" style="color:${col}">${wins}/8</span></div>`;
+  }).join('');
+}
+
+// ── MATCH VIEW TABLE ─────────────────────────────────────────
+function renderMatchView() {
+  const s=getFinalStandings(), sortedP=Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  let hdr=`<thead><tr><th style="min-width:80px;position:sticky;left:0;background:var(--surface);z-index:2">Player</th><th style="min-width:44px;text-align:center">Total</th>`;
+  matchData.slice().reverse().forEach(m=>{
+    hdr+=`<th style="min-width:82px;text-align:center"><span style="display:block;font-size:0.6rem;color:var(--accent)">M${m.num}</span><span style="display:block;font-size:0.55rem;color:var(--muted);font-weight:400">${m.teams}</span></th>`;
+  });
+  hdr+=`</tr><tr style="border-bottom:2px solid var(--border2)"><td style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);padding:3px 6px;position:sticky;left:0;background:var(--surface)">RESULT</td><td></td>`;
+  matchData.slice().reverse().forEach(m=>{
+    hdr+=`<td style="text-align:center;padding:3px 5px"><span style="display:block;font-size:0.68rem;font-weight:700;color:${m.winner==='Abandoned'?'var(--muted)':'var(--accent2)'}">${m.winner}</span>${m.batsman?`<span style="display:block;font-size:0.55rem;color:var(--green)">🏏${m.batsman}</span>`:''}${m.bowler?`<span style="display:block;font-size:0.55rem;color:var(--accent3)">🎳${m.bowler}</span>`:''}</td>`;
+  });
+  hdr+=`</tr></thead>`;
+  const rc=['var(--yellow)','#94a3b8','#c2956c'];
+  const body='<tbody>'+sortedP.map((p,i)=>{
+    let row=`<tr><td style="font-weight:700;color:${i<3?rc[i]:COLORS[p]};white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1">${i<3?['🥇','🥈','🥉'][i]+' ':''}${p}</td><td style="font-family:var(--font-mono);font-weight:700;font-size:0.85rem;text-align:center;color:${COLORS[p]}">${s[p]}</td>`;
+    matchData.slice().reverse().forEach(m=>{
+      const pk=m.picks[p]||{}, team=pk.team||'', bat=pk.bat||'', bowl=pk.bowl||'';
+      const sc=m.scores[p], winU=m.winner.toUpperCase(), teamU=team.toUpperCase();
+      const th=team&&(teamU===winU||winU.includes(teamU)||teamU.includes(winU));
+      const bh=bat&&m.batsman&&bat.toLowerCase().split(' ').some(w=>w.length>2&&m.batsman.toLowerCase().includes(w));
+      const blh=bowl&&m.bowler&&bowl.toLowerCase().split(' ').some(w=>w.length>2&&m.bowler.toLowerCase().includes(w));
+      const cc=sc>0?'var(--green)':sc<0?'var(--red)':'var(--muted)';
+      const sd=sc>0?'+'+sc:sc===0?'0':sc!=null?sc:'—';
+      const bg=m.winner==='Abandoned'?'rgba(251,191,36,0.06)':sc>0?'rgba(52,211,153,0.05)':sc<0?'rgba(248,113,113,0.05)':'transparent';
+      row+=`<td style="text-align:center;padding:4px 5px;background:${bg};vertical-align:middle">
+        <span style="display:block;font-size:0.68rem;font-weight:700;color:${th?'var(--green)':team?'var(--muted)':'rgba(255,255,255,0.15)'}">${team||'—'}</span>
+        ${bat?`<span style="display:block;font-size:0.55rem;color:${bh?'var(--green)':'rgba(255,255,255,0.25)'};line-height:1.3">🏏${bat}</span>`:''}
+        ${bowl?`<span style="display:block;font-size:0.55rem;color:${blh?'var(--accent3)':'rgba(255,255,255,0.25)'};line-height:1.3">🎳${bowl}</span>`:''}
+        <span style="display:block;font-family:var(--font-mono);font-size:0.62rem;font-weight:700;color:${cc};margin-top:1px">${sd}</span>
+      </td>`;
     });
-    body+='</tr>';
-  });
-  body+='</tbody>';
-  document.getElementById('history-table').innerHTML=header+body;
+    return row+'</tr>';
+  }).join('')+'</tbody>';
+  document.getElementById('matchview-table').innerHTML=hdr+body;
 }
 
+// ── PLAYER FILTER ────────────────────────────────────────────
 function togglePlayer(p) {
   const pills=document.getElementById('player-pills');
   if (p==='all') {
@@ -603,124 +620,47 @@ function togglePlayer(p) {
       pills.querySelectorAll('.pill').forEach(el=>el.classList.remove('active'));
       pill.classList.add('active');
     } else if (selectedPlayers.has(p)) {
-      selectedPlayers.delete(p);
-      pill.classList.remove('active');
-      allPill.classList.remove('active');
-      if (selectedPlayers.size===0){selectedPlayers=new Set(PLAYERS);pills.querySelectorAll('.pill').forEach(el=>el.classList.add('active'));}
+      selectedPlayers.delete(p); pill.classList.remove('active'); allPill.classList.remove('active');
+      if (!selectedPlayers.size) { selectedPlayers=new Set(PLAYERS); pills.querySelectorAll('.pill').forEach(el=>el.classList.add('active')); }
     } else {
-      selectedPlayers.add(p);pill.classList.add('active');
+      selectedPlayers.add(p); pill.classList.add('active');
       if (selectedPlayers.size===PLAYERS.length) allPill.classList.add('active');
-      else allPill.classList.remove('active');
     }
   }
-  if (currentTab!=='matchview') renderHistoryTable();
+  renderMatchView();
 }
 
-function switchTab(tab) {
-  currentTab=tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
-  const isMatchView=tab==='matchview';
-  document.getElementById('matchview-wrap').style.display=isMatchView?'block':'none';
-  document.getElementById('history-wrap').style.display=isMatchView?'none':'block';
-  if (isMatchView) renderMatchView(); else renderHistoryTable();
-}
-
-function renderMatchView() {
-  const standings=getFinalStandings();
-  const sortedPlayers=Object.entries(standings).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
-  let header=`<thead><tr><th style="min-width:90px">Player</th><th style="min-width:48px;text-align:center">Total</th>`;
-  matchData.slice().reverse().forEach(m=>{
-    header+=`<th style="min-width:90px;text-align:center"><span style="display:block;font-size:0.65rem;color:var(--accent)">M${m.num}</span><span style="display:block;font-size:0.6rem;color:var(--muted);font-weight:400">${m.teams}</span></th>`;
-  });
-  header+=`</tr><tr style="border-bottom:2px solid var(--border2)"><td style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);padding:4px 8px">RESULT</td><td></td>`;
-  matchData.slice().reverse().forEach(m=>{
-    const isAbandoned=m.winner==='Abandoned';
-    header+=`<td style="text-align:center;padding:4px 6px"><span style="display:block;font-size:0.72rem;font-weight:700;color:${isAbandoned?'var(--muted)':'var(--accent2)'}">${m.winner}</span>${m.batsman?`<span style="display:block;font-size:0.6rem;color:var(--green)">🏏 ${m.batsman}</span>`:''}${m.bowler?`<span style="display:block;font-size:0.6rem;color:var(--accent3)">🎳 ${m.bowler}</span>`:''}</td>`;
-  });
-  header+=`</tr></thead>`;
-  let body='<tbody>';
-  sortedPlayers.forEach((p,idx)=>{
-    const rankColors=['var(--yellow)','#94a3b8','#c2956c'];
-    const nameColor=idx<3?rankColors[idx]:COLORS[p];
-    body+=`<tr><td style="font-weight:700;color:${nameColor};white-space:nowrap">${idx<3?['🥇','🥈','🥉'][idx]+' ':'' }${p}</td><td style="font-family:var(--font-mono);font-weight:700;font-size:0.9rem;text-align:center;color:${COLORS[p]}">${standings[p]}</td>`;
-    matchData.slice().reverse().forEach(m=>{
-      const pk=m.picks[p]||{};
-      const team=pk.team||'', bat=pk.bat||'', bowl=pk.bowl||'';
-      const score=m.scores[p];
-      const winU=m.winner.toUpperCase(), teamU=team.toUpperCase();
-      const teamHit=team&&team!=='—'&&(teamU===winU||winU.includes(teamU)||teamU.includes(winU));
-      const batHit=bat&&m.batsman&&bat.toLowerCase().split(' ').some(w=>w.length>2&&m.batsman.toLowerCase().includes(w));
-      const bowlHit=bowl&&m.bowler&&bowl.toLowerCase().split(' ').some(w=>w.length>2&&m.bowler.toLowerCase().includes(w));
-      const isAbandoned=m.winner==='Abandoned';
-      const sc=score!==undefined?score:null;
-      const cc=sc>0?'var(--green)':sc<0?'var(--red)':'var(--muted)';
-      const sd=sc>0?'+'+sc:sc===0?'0':sc!==null?sc:'—';
-      const cellBg=isAbandoned?'rgba(251,191,36,0.06)':sc>0?'rgba(52,211,153,0.05)':sc<0?'rgba(248,113,113,0.05)':'transparent';
-      body+=`<td style="text-align:center;padding:5px 6px;background:${cellBg};vertical-align:middle">
-        <span style="display:block;font-size:0.72rem;font-weight:700;color:${teamHit?'var(--green)':team?'var(--muted)':'rgba(255,255,255,0.15)'}">${team||'—'}</span>
-        ${bat?`<span style="display:block;font-size:0.58rem;color:${batHit?'var(--green)':'rgba(255,255,255,0.3)'};line-height:1.4">🏏 ${bat}</span>`:''}
-        ${bowl?`<span style="display:block;font-size:0.58rem;color:${bowlHit?'var(--accent3)':'rgba(255,255,255,0.3)'};line-height:1.4">🎳 ${bowl}</span>`:''}
-        <span style="display:block;font-family:var(--font-mono);font-size:0.68rem;font-weight:700;color:${cc};margin-top:2px">${sd}</span>
-      </td>`;
-    });
-    body+='</tr>';
-  });
-  body+='</tbody>';
-  document.getElementById('matchview-table').innerHTML=header+body;
-}
-
+// ── PARSE UPDATE ─────────────────────────────────────────────
 function parseUpdate() {
   const raw=document.getElementById('update-input').value.trim();
   const status=document.getElementById('parse-status');
   status.style.display='block';
   try {
-    const matchLine=raw.match(/Match\s+(\d+)\s+([\w]+\s+vs\s+[\w]+)/i);
-    if (!matchLine) throw new Error('Could not find "Match N TEAM vs TEAM" line');
-    const matchNum=parseInt(matchLine[1]), teams=matchLine[2];
-    const existing=matchData.find(m=>m.num===matchNum);
-    const winnerM=raw.match(/Winner\s*[-–:]\s*(\w+)/i);
-    const batM=raw.match(/Batsman\s*[-–:]\s*([^\n]+)/i);
-    const bowlM=raw.match(/Bowler\s*[-–:]\s*([^\n]+)/i);
-    const winner=winnerM?winnerM[1].trim():'';
-    const batsman=batM?batM[1].trim():'';
-    const bowler=bowlM?bowlM[1].trim():'';
-    const thisMatchIdx=raw.search(/This match/i);
+    const mL=raw.match(/Match\s+(\d+)\s+([\w]+\s+vs\s+[\w]+)/i);
+    if (!mL) throw new Error('No "Match N TEAM vs TEAM" line found');
+    const matchNum=parseInt(mL[1]), teams=mL[2];
+    const winner=(raw.match(/Winner\s*[-–:]\s*(\w+)/i)||[])[1]||'';
+    const batsman=(raw.match(/Batsman\s*[-–:]\s*([^\n]+)/i)||[])[1]?.trim()||'';
+    const bowler=(raw.match(/Bowler\s*[-–:]\s*([^\n]+)/i)||[])[1]?.trim()||'';
     const scores={}, picks={};
-    if (thisMatchIdx!==-1) {
-      const afterThisMatch=raw.substring(thisMatchIdx);
-      PLAYERS.forEach(p=>{const m=afterThisMatch.match(new RegExp(p+'\\s+([+-]?\\d+)','i'));if(m) scores[p]=parseInt(m[1]);});
-    }
-    PLAYERS.forEach(p=>{
-      const m=raw.match(new RegExp('^'+p+'\\s*[-–]\\s*(.+)','im'));
-      if(m){const parts=m[1].split('/').map(x=>x.trim());picks[p]={team:parts[0]||'',bat:parts[1]||'',bowl:parts[2]||''};}
-    });
-    if (Object.keys(scores).length===0) {
-      PLAYERS.forEach(p=>{
-        const m=raw.match(new RegExp('^'+p+'\\s+([+-]?\\d+)$','im'));
-        if(m){const cumVal=parseInt(m[1]);const lastCum=matchData.reduce((s,m2)=>s+(m2.scores[p]||0),0);scores[p]=cumVal-lastCum;}
-      });
-    }
-    if (Object.keys(scores).length===0&&!winner) throw new Error('Could not parse scores.');
-    const newMatch={num:matchNum,teams,winner:winner||'?',batsman,bowler,picks,scores};
-    if (existing) {
-      const idx=matchData.findIndex(m=>m.num===matchNum);
-      matchData[idx]=newMatch;
-      status.className='parse-status parse-ok';
-      status.textContent=`✓ Match ${matchNum} updated successfully.`;
-    } else {
-      matchData.push(newMatch);matchData.sort((a,b)=>a.num-b.num);
-      status.className='parse-status parse-ok';
-      status.textContent=`✓ Match ${matchNum} (${teams}) added. Dashboard updated!`;
-    }
-    renderAll();document.getElementById('update-input').value='';
-    window.scrollTo({top:0,behavior:'smooth'});
-  } catch(e) {
-    status.className='parse-status parse-err';
-    status.textContent='✗ Parse error: '+e.message;
-  }
+    const tmi=raw.search(/This match/i);
+    if (tmi!==-1) { const after=raw.substring(tmi); PLAYERS.forEach(p=>{const m=after.match(new RegExp(p+'\\s+([+-]?\\d+)','i'));if(m)scores[p]=parseInt(m[1]);}); }
+    PLAYERS.forEach(p=>{ const m=raw.match(new RegExp('^'+p+'\\s*[-–]\\s*(.+)','im')); if(m){const pts=m[1].split('/').map(x=>x.trim());picks[p]={team:pts[0]||'',bat:pts[1]||'',bowl:pts[2]||''};} });
+    if (!Object.keys(scores).length) { PLAYERS.forEach(p=>{const m=raw.match(new RegExp('^'+p+'\\s+([+-]?\\d+)$','im'));if(m){const cv=parseInt(m[1]),lc=matchData.reduce((s,m2)=>s+(m2.scores[p]||0),0);scores[p]=cv-lc;}}); }
+    if (!Object.keys(scores).length&&!winner) throw new Error('Could not parse scores. Include "This match" section.');
+    const newM={num:matchNum,teams,winner:winner||'?',batsman,bowler,picks,scores};
+    const ei=matchData.findIndex(m=>m.num===matchNum);
+    if (ei>=0) { matchData[ei]=newM; status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} updated!`; }
+    else { matchData.push(newM); matchData.sort((a,b)=>a.num-b.num); status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} added!`; }
+    // force chart redraw
+    charts.progress=null; charts.avg=null;
+    renderAll();
+    document.getElementById('update-input').value='';
+    navTo('standings');
+  } catch(e) { status.className='parse-status parse-err'; status.textContent='✗ '+e.message; }
 }
 
-document.addEventListener('DOMContentLoaded', renderAll);
+document.addEventListener('DOMContentLoaded', ()=>{ renderAll(); });
 </script>
 </body>
 </html>
