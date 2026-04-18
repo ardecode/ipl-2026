@@ -210,6 +210,22 @@ button:active{transform:scale(0.97);}
 .bw-bar-outer { flex:1; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
 .bw-bar-inner { height:100%; border-radius:3px; }
 .bw-val { min-width:22px; text-align:right; }
+
+.badge-pill{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-mono);font-size:0.55rem;padding:2px 6px;border-radius:12px;white-space:nowrap;}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow-y:auto;padding:1rem;-webkit-overflow-scrolling:touch;}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;padding-top:2rem;}
+.modal-box{width:100%;max-width:580px;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.25rem;position:relative;margin:0 auto;}
+@media(min-width:640px){.modal-box{padding:2rem;}}
+.modal-close{position:absolute;top:1rem;right:1rem;background:var(--surface2);border:1px solid var(--border2);color:var(--text);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;line-height:1;transition:background 0.15s;}
+.modal-close:hover{background:var(--border2);}
+.profile-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:1rem 0;}
+.profile-stat{background:var(--surface2);padding:0.75rem 0.85rem;}
+.profile-stat-label{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-bottom:0.2rem;}
+.profile-stat-val{font-size:1.2rem;font-weight:800;line-height:1;}
+.h2h-row{display:grid;grid-template-columns:44px 1fr 44px;gap:0.4rem;align-items:center;padding:0.35rem 0;border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:0.7rem;}
+.h2h-row:last-child{border-bottom:none;}
+select{background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-mono);font-size:0.75rem;padding:6px 10px;border-radius:8px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
+select:focus{border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -258,7 +274,10 @@ button:active{transform:scale(0.97);}
   <div class="tab-section active" id="sec-standings">
     <div class="grid-3">
       <div class="card">
-        <div class="card-title">🏆 Standings</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <span class="card-title" style="margin-bottom:0">🏆 Standings</span>
+          <button class="btn-secondary" style="font-size:0.7rem;padding:5px 12px;min-height:0;display:flex;align-items:center;gap:5px" onclick="shareStandingsCard()">📤 Share</button>
+        </div>
         <div id="leaderboard"></div>
       </div>
       <div class="card">
@@ -281,6 +300,10 @@ button:active{transform:scale(0.97);}
           <div id="picks-bowl-list"></div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-title">🏁 Points Projection</div>
+        <div id="projection-list"></div>
+      </div>
     </div>
   </div>
 
@@ -300,6 +323,15 @@ button:active{transform:scale(0.97);}
         <div class="card-title">📊 Avg Points / Match</div>
         <div class="chart-wrap" style="height:280px;"><canvas id="avgChart"></canvas></div>
       </div>
+    </div>
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="card-title">⚔️ Head-to-Head</div>
+      <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+        <select id="h2h-p1" onchange="renderH2H()"></select>
+        <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">vs</span>
+        <select id="h2h-p2" onchange="renderH2H()"></select>
+      </div>
+      <div id="h2h-output"></div>
     </div>
   </div>
 
@@ -491,6 +523,13 @@ button:active{transform:scale(0.97);}
 
 </div><!-- end page -->
 
+<div class="modal-overlay" id="profile-modal" onclick="if(event.target===this)closeProfile()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeProfile()">×</button>
+    <div id="profile-body"></div>
+  </div>
+</div>
+
 <script>
 const PLAYERS = ["Abhijith","Akhil","Arijit","Ashish","Jay","Mythy","Rahul","Rakesh","Vignan","Yogi"];
 const COLORS = {Rahul:"#38bdf8",Arijit:"#a78bfa",Mythy:"#f97316",Akhil:"#34d399",Ashish:"#fb923c",Rakesh:"#f472b6",Yogi:"#facc15",Jay:"#67e8f9",Abhijith:"#c084fc",Vignan:"#86efac"};
@@ -586,7 +625,7 @@ function getPicksStats() {
 
 function renderAll() {
   renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView();
-  renderInsightsStatic();
+  renderInsightsStatic(); renderPointsProjection(); initH2H();
 }
 
 function renderMetrics() {
@@ -612,9 +651,13 @@ function renderLeaderboard() {
     const pct=max?pts/max*100:0;
     const dc=last>0?'delta-pos':last<0?'delta-neg':'delta-zero';
     const ds=last>0?'+'+last:last===0?'±0':last;
-    return `<div class="lb-row">
+    const badges=getPlayerBadges(p);
+    return `<div class="lb-row" style="grid-template-columns:24px 1fr 60px auto auto">
       <span class="lb-rank ${i<3?rc[i]:''}">${i<3?rs[i]:i+1}</span>
-      <span class="lb-name" style="color:${COLORS[p]}">${p}</span>
+      <div>
+        <span class="lb-name" style="color:${COLORS[p]};cursor:pointer" onclick="showPlayerProfile('${p}')">${p}</span>
+        ${badges.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${badgesHTML(badges)}</div>`:''}
+      </div>
       <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${COLORS[p]}"></div></div>
       <span class="lb-pts">${pts}</span>
       <span class="lb-delta ${dc}">${ds}</span>
@@ -1293,6 +1336,310 @@ function renderTeamFavourites() {
       <div style="display:flex;gap:4px;flex-wrap:wrap">${favsHTML}</div>
     </div>`;
   }).join('');
+}
+
+// ══ BADGES ══
+function getPlayerBadges(p) {
+  const badges = [];
+  const s = getFinalStandings();
+  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const played = matchData.filter(m => m.winner !== 'Abandoned');
+  const scores = matchData.map(m => m.scores[p] !== undefined ? m.scores[p] : 0);
+
+  if (sorted[0][0] === p) badges.push({icon:'👑', label:'Leader', color:'#fbbf24'});
+
+  const perfects = matchData.filter(m => (m.scores[p]||0) >= 5).length;
+  if (perfects >= 1) badges.push({icon:'💎', label:`${perfects}× Perfect`, color:'#a78bfa'});
+
+  let maxW=0,curW=0;
+  scores.forEach(sc=>{if(sc>0){curW++;maxW=Math.max(maxW,curW);}else curW=0;});
+  if (maxW >= 5) badges.push({icon:'🔥', label:`${maxW} streak`, color:'#f97316'});
+
+  let contrCount = 0;
+  played.forEach(m => {
+    const picks = PLAYERS.map(pp => (m.picks[pp]||{}).team||'').filter(t=>t);
+    if (picks.length < 6) return;
+    const counts = {}; picks.forEach(t=>{const k=t.toUpperCase();counts[k]=(counts[k]||0)+1;});
+    const [top,cnt]=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    if(cnt<6) return;
+    const w=m.winner.toUpperCase();
+    if(top===w||w.includes(top)||top.includes(w)) return;
+    const pt=(m.picks[p]||{}).team||''; if(!pt) return;
+    const ptu=pt.toUpperCase();
+    if(ptu===w||w.includes(ptu)||ptu.includes(w)) contrCount++;
+  });
+  if (contrCount >= 2) badges.push({icon:'⚡', label:`${contrCount}× Contrarian`, color:'#38bdf8'});
+
+  const wr = getWinRates();
+  const topBat = Object.entries(wr).sort((a,b)=>b[1].batRate-a[1].batRate)[0];
+  if (topBat[0]===p && wr[p].batCorrect>=1) badges.push({icon:'🎯', label:'Bat Oracle', color:'#34d399'});
+
+  const topBowl = Object.entries(wr).sort((a,b)=>b[1].bowlRate-a[1].bowlRate)[0];
+  if (topBowl[0]===p && wr[p].bowlCorrect>=1) badges.push({icon:'🎳', label:'Bowl Oracle', color:'#34d399'});
+
+  if (matchData.length >= 5) {
+    const last5 = matchData.slice(-5).reduce((sum,m)=>sum+(m.scores[p]||0),0);
+    const allLast5 = PLAYERS.map(pp=>matchData.slice(-5).reduce((sum2,m)=>sum2+(m.scores[pp]||0),0));
+    if (last5 === Math.max(...allLast5) && last5 > 0) badges.push({icon:'📈', label:'Hot Form', color:'#86efac'});
+  }
+  return badges;
+}
+
+function badgesHTML(badges) {
+  return badges.map(b=>`<span class="badge-pill" style="background:${b.color}22;border:1px solid ${b.color}44;color:${b.color}">${b.icon} ${b.label}</span>`).join('');
+}
+
+// ══ POINTS PROJECTION ══
+function renderPointsProjection() {
+  const TOTAL = 74;
+  const remaining = Math.max(0, TOTAL - matchData.length);
+  const s = getFinalStandings();
+  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const leaderPts = sorted[0][1];
+  const maxPossible = leaderPts + remaining * 5;
+
+  const rows = sorted.map(([p, pts], i) => {
+    const myMax = pts + remaining * 5;
+    const canWin = myMax >= leaderPts;
+    const ptsBehind = leaderPts - pts;
+    const status = i===0 ? `leads by ${sorted[0][1]-(sorted[1]||[,0])[1]} pts`
+                 : !canWin ? 'eliminated'
+                 : ptsBehind===0 ? 'level with leader'
+                 : `needs ${ptsBehind} pts`;
+    const statusColor = i===0?'var(--yellow)':!canWin?'var(--red)':ptsBehind<=8?'var(--green)':'var(--muted)';
+    const barPct = maxPossible ? Math.min(100, pts/maxPossible*100) : 0;
+    return `<div style="display:grid;grid-template-columns:20px 1fr auto;gap:0.5rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);text-align:center">${i+1}</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="font-weight:700;font-size:0.85rem;color:${COLORS[p]};cursor:pointer" onclick="showPlayerProfile('${p}')">${p}</span>
+          <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:700;color:${COLORS[p]}">${pts}</span>
+        </div>
+        <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden">
+          <div style="width:${barPct}%;height:100%;background:${COLORS[p]}99;border-radius:2px"></div>
+        </div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.6rem;color:${statusColor};white-space:nowrap;text-align:right">${status}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('projection-list').innerHTML =
+    `<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">${remaining} matches left · max ${remaining*5} pts to earn</div>` + rows;
+}
+
+// ══ HEAD TO HEAD ══
+function initH2H() {
+  ['h2h-p1','h2h-p2'].forEach((id,i) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = PLAYERS.map(p=>`<option value="${p}" ${(i===0&&p===PLAYERS[0])||(i===1&&p===PLAYERS[1])?'selected':''}>${p}</option>`).join('');
+  });
+  renderH2H();
+}
+
+function renderH2H() {
+  const p1 = document.getElementById('h2h-p1')?.value;
+  const p2 = document.getElementById('h2h-p2')?.value;
+  const out = document.getElementById('h2h-output');
+  if (!p1||!p2||!out) return;
+  if (p1===p2) { out.innerHTML='<p style="color:var(--muted);font-size:0.78rem;padding:0.5rem 0">Pick two different players</p>'; return; }
+
+  let w1=0,w2=0,draws=0;
+  matchData.forEach(m=>{ const s1=m.scores[p1]||0,s2=m.scores[p2]||0; if(s1>s2)w1++; else if(s2>s1)w2++; else draws++; });
+  const cum1=matchData.reduce((s,m)=>s+(m.scores[p1]||0),0);
+  const cum2=matchData.reduce((s,m)=>s+(m.scores[p2]||0),0);
+
+  const rows=matchData.map(m=>{
+    const s1=m.scores[p1]||0,s2=m.scores[p2]||0;
+    const c1=s1>s2?'var(--green)':s1<s2?'var(--red)':'var(--muted)';
+    const c2=s2>s1?'var(--green)':s2<s1?'var(--red)':'var(--muted)';
+    return `<div class="h2h-row">
+      <span style="text-align:right;color:${c1};font-weight:700">${s1>0?'+'+s1:s1}</span>
+      <span style="text-align:center;color:var(--muted);font-size:0.58rem;overflow:hidden;text-overflow:ellipsis">M${m.num} ${m.teams}</span>
+      <span style="text-align:left;color:${c2};font-weight:700">${s2>0?'+'+s2:s2}</span>
+    </div>`;
+  }).join('');
+
+  out.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 56px 1fr;gap:0.5rem;align-items:center;margin-bottom:1rem;text-align:center">
+      <div>
+        <div style="font-size:1.5rem;font-weight:800;color:${COLORS[p1]}">${w1}</div>
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">wins</div>
+        <div style="font-family:var(--font-mono);font-size:0.72rem;font-weight:700;color:${COLORS[p1]};margin-top:4px">${cum1} pts</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">${draws}<br>draws</div>
+      <div>
+        <div style="font-size:1.5rem;font-weight:800;color:${COLORS[p2]}">${w2}</div>
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">wins</div>
+        <div style="font-family:var(--font-mono);font-size:0.72rem;font-weight:700;color:${COLORS[p2]};margin-top:4px">${cum2} pts</div>
+      </div>
+    </div>
+    <div style="overflow-y:auto;max-height:260px;border-top:1px solid var(--border)">
+      <div style="display:grid;grid-template-columns:44px 1fr 44px;gap:0.4rem;padding:0.3rem 0;font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border2)">
+        <span style="text-align:right;color:${COLORS[p1]}">${p1}</span><span style="text-align:center">Match</span><span style="text-align:left;color:${COLORS[p2]}">${p2}</span>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+// ══ SHARE CARD ══
+function shareStandingsCard() {
+  const canvas=document.createElement('canvas');
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const W=400,H=100+PLAYERS.length*40+60;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  // bg
+  ctx.fillStyle='#0d0f14'; ctx.fillRect(0,0,W,H);
+  // subtle grid
+  ctx.strokeStyle='rgba(255,255,255,0.025)'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // top gradient bar
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'#f97316'); grad.addColorStop(1,'#a78bfa');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,4);
+
+  ctx.fillStyle='#f0f2f7';
+  ctx.font='bold 20px system-ui,sans-serif';
+  ctx.fillText('IPL 2026 · Prediction League',24,38);
+  ctx.fillStyle='#6b7280'; ctx.font='11px monospace';
+  ctx.fillText(`MATCH ${matchData.length} OF 74  ·  ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`,24,56);
+  ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(16,68,W-32,1);
+
+  const s=getFinalStandings();
+  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const maxPts=sorted[0][1];
+  const medals=['🥇','🥈','🥉'];
+
+  sorted.forEach(([p,pts],i)=>{
+    const y=80+i*40;
+    if(i%2===0){ctx.fillStyle='rgba(255,255,255,0.018)';ctx.fillRect(16,y,W-32,36);}
+    // rank
+    ctx.font='bold 14px system-ui,sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle=i<3?['#fbbf24','#94a3b8','#c2956c'][i]:'#6b7280';
+    ctx.fillText(i<3?medals[i]:String(i+1),30,y+23);
+    // name
+    ctx.font='bold 15px system-ui,sans-serif'; ctx.textAlign='left';
+    ctx.fillStyle=COLORS[p]; ctx.fillText(p,48,y+23);
+    // bar
+    const bx=150,bw=W-bx-60,bh=6,by=y+15;
+    ctx.fillStyle='rgba(255,255,255,0.07)';
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,3);ctx.fill();
+    ctx.fillStyle=COLORS[p]+'bb';
+    ctx.beginPath();ctx.roundRect(bx,by,Math.max(4,bw*pts/maxPts),bh,3);ctx.fill();
+    // pts
+    ctx.font='bold 14px monospace'; ctx.textAlign='right';
+    ctx.fillStyle=COLORS[p]; ctx.fillText(String(pts),W-16,y+23);
+    ctx.textAlign='left';
+  });
+
+  const fy=H-24;
+  ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(16,H-44,W-32,1);
+  ctx.fillStyle='#6b7280'; ctx.font='10px monospace';
+  ctx.fillText('🏏 IPL 2026 Prediction League',24,fy);
+  ctx.textAlign='right'; ctx.fillText('ardecode/ipl-2026',W-24,fy); ctx.textAlign='left';
+
+  canvas.toBlob(blob=>{
+    if(!blob) return;
+    const file=new File([blob],'ipl-standings.png',{type:'image/png'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'IPL 2026 Standings'}).catch(()=>downloadImg(blob));
+    } else downloadImg(blob);
+  },'image/png');
+}
+function downloadImg(blob){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ipl-standings.png'; a.click();
+}
+
+// ══ PLAYER PROFILE ══
+function showPlayerProfile(p) {
+  const s=getFinalStandings();
+  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const rank=sorted.findIndex(([name])=>name===p)+1;
+  const pts=s[p];
+  const wr=getWinRates()[p];
+  const scores=matchData.map(m=>m.scores[p]!==undefined?m.scores[p]:null);
+  const badges=getPlayerBadges(p);
+
+  const validScores=scores.filter(x=>x!==null);
+  const bestScore=validScores.length?Math.max(...validScores):0;
+  const bestMatch=matchData[scores.indexOf(bestScore)];
+  let maxNeg=0,curNeg=0;
+  scores.forEach(sc=>{if(sc!==null&&sc<0){curNeg++;maxNeg=Math.max(maxNeg,curNeg);}else curNeg=0;});
+
+  const teamCounts={};
+  matchData.forEach(m=>{const t=(m.picks[p]||{}).team||'';if(!t)return;const k=t.toUpperCase();teamCounts[k]=(teamCounts[k]||0)+1;});
+  const favTeams=Object.entries(teamCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  const recentCells=matchData.slice(-10).map(m=>{
+    const sc=m.scores[p]; if(sc===undefined||sc===null) return '';
+    const col=sc>=5?'#22c55e':sc===4?'#34d399':sc===3?'#6ee7b7':sc===0?'#fbbf24':'#f87171';
+    const lbl=sc>0?'+'+sc:String(sc);
+    return `<div title="M${m.num} ${m.teams}: ${lbl}" style="width:22px;height:22px;border-radius:4px;background:${col};display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:0.5rem;color:#000;font-weight:800;flex-shrink:0">${lbl}</div>`;
+  }).join('');
+
+  const heatCells=matchData.map(m=>{
+    const sc=m.scores[p];
+    const col=sc>=5?'#22c55e':sc===4?'#34d399':sc===3?'#6ee7b7':sc===0?'rgba(251,191,36,0.5)':'#f87171';
+    return `<div title="M${m.num}: ${sc>0?'+'+sc:sc}" style="width:13px;height:13px;border-radius:2px;background:${col};flex-shrink:0"></div>`;
+  }).join('');
+
+  const avg=(pts/matchData.length).toFixed(2);
+  const first5=matchData.slice(0,5).reduce((s,m)=>s+(m.scores[p]||0),0);
+  const last5=matchData.slice(-5).reduce((s,m)=>s+(m.scores[p]||0),0);
+  const trendLabel=last5>first5?'📈 Improving':last5<first5?'📉 Declining':'➡️ Steady';
+  const trendDetail=`(last 5: ${last5>0?'+':''}${last5} pts, first 5: ${first5>0?'+':''}${first5} pts)`;
+
+  document.getElementById('profile-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+      <div style="width:52px;height:52px;border-radius:12px;background:${COLORS[p]}22;border:2px solid ${COLORS[p]}66;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:${COLORS[p]};flex-shrink:0">${p.slice(0,2).toUpperCase()}</div>
+      <div>
+        <div style="font-size:1.4rem;font-weight:800;color:${COLORS[p]}">${p}</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">Rank #${rank} · ${pts} pts · ${avg} avg/match</div>
+      </div>
+    </div>
+    ${badges.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem">${badgesHTML(badges)}</div>`:''}
+    <div class="profile-stat-grid">
+      <div class="profile-stat"><div class="profile-stat-label">Team Acc</div><div class="profile-stat-val" style="color:${wr.teamRate>=55?'var(--green)':wr.teamRate>=45?'var(--yellow)':'var(--red)'}">${wr.teamRate.toFixed(0)}%</div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">${wr.teamCorrect}/${wr.teamTotal}</div></div>
+      <div class="profile-stat"><div class="profile-stat-label">Bat Acc</div><div class="profile-stat-val" style="color:${wr.batRate>=25?'var(--green)':'var(--red)'}">${wr.batRate.toFixed(0)}%</div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">${wr.batCorrect}/${wr.batTotal}</div></div>
+      <div class="profile-stat"><div class="profile-stat-label">Bowl Acc</div><div class="profile-stat-val" style="color:${wr.bowlRate>=25?'var(--green)':'var(--red)'}">${wr.bowlRate.toFixed(0)}%</div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">${wr.bowlCorrect}/${wr.bowlTotal}</div></div>
+    </div>
+    <div style="margin-bottom:0.85rem">
+      <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Last 10 matches</div>
+      <div style="display:flex;gap:3px;flex-wrap:wrap">${recentCells}</div>
+    </div>
+    <div style="margin-bottom:0.85rem">
+      <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Full season</div>
+      <div style="display:flex;gap:2px;flex-wrap:wrap">${heatCells}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.85rem">
+      <div style="background:var(--surface2);border-radius:8px;padding:0.75rem 1rem">
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:0.25rem">BEST MATCH</div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--green)">+${bestScore}</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">${bestMatch?'M'+bestMatch.num+' '+bestMatch.teams:''}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:0.75rem 1rem">
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:0.25rem">WORST RUN</div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--red)">${maxNeg}× -1</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">consecutive losses</div>
+      </div>
+    </div>
+    <div style="margin-bottom:0.75rem">
+      <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.45rem">Favourite Teams</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${favTeams.map(([t,c])=>`<span class="team-pill">${t} ×${c}</span>`).join('')}</div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--muted)">${trendLabel} ${trendDetail}</div>`;
+
+  document.getElementById('profile-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeProfile() {
+  document.getElementById('profile-modal').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 function parseUpdate() {
