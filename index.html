@@ -6,6 +6,8 @@
 <title>IPL 2026 — Prediction League</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -256,7 +258,10 @@ select:focus{border-color:var(--accent);}
       <h1>IPL 2026<br><span>Prediction League</span></h1>
       <p>🏏 Match 25 of season &nbsp;·&nbsp; Updated Apr 17</p>
     </div>
-    <span class="badge">LIVE TRACKER</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <span class="badge">LIVE TRACKER</span>
+      <span id="sync-status" style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.08em;color:var(--muted)">● Connecting…</span>
+    </div>
   </div>
 
   <!-- Overview metrics -->
@@ -1664,38 +1669,114 @@ function parseUpdate() {
     if (ei>=0) { matchData[ei]=newM; status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} updated!`; }
     else { matchData.push(newM); matchData.sort((a,b)=>a.num-b.num); status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} added!`; }
     charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
-    saveToStorage();
+    saveToFirebase();
     renderAll();
     document.getElementById('update-input').value='';
     navTo('standings');
   } catch(e) { status.className='parse-status parse-err'; status.textContent='✗ '+e.message; }
 }
 
+// ══════════════════════════════════════════════
+// FIREBASE SYNC
+// ══════════════════════════════════════════════
 const LS_KEY = 'ipl2026_matchData';
+const FB_CONFIG = {
+  apiKey: "AIzaSyAcJnT9njAf9gDsUIUdOJ5vRCk4x5oTK1w",
+  authDomain: "ipl-prediction-game-327cc.firebaseapp.com",
+  projectId: "ipl-prediction-game-327cc",
+  storageBucket: "ipl-prediction-game-327cc.firebasestorage.app",
+  messagingSenderId: "533474736224",
+  appId: "1:533474736224:web:c79bb3c5d035bb1d9cab05"
+};
 
-function saveToStorage() {
+let docRef = null;
+
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const map = { syncing:['● Syncing…','var(--yellow)'], live:['● Live','var(--green)'], offline:['● Offline','var(--red)'] };
+  const [text, color] = map[state] || map.offline;
+  el.textContent = text; el.style.color = color;
+}
+
+function applyRemoteData(matches) {
+  if (!matches || !matches.length) return false;
+  // Merge: prefer whichever source has more matches; never lose data
+  const merged = [...matchData];
+  matches.forEach(m => { if (!merged.find(hm => hm.num === m.num)) merged.push(m); });
+  merged.sort((a,b) => a.num - b.num);
+  // Only re-render if data actually changed
+  const changed = JSON.stringify(merged) !== JSON.stringify(matchData);
+  if (changed) {
+    matchData.length = 0; merged.forEach(m => matchData.push(m));
+    try { localStorage.setItem(LS_KEY, JSON.stringify(matchData)); } catch(e) {}
+    charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
+    renderAll();
+  }
+  return changed;
+}
+
+async function saveToFirebase() {
+  if (!docRef) { saveToLocalStorage(); return; }
+  try {
+    await docRef.set({ matches: matchData, updatedAt: Date.now() });
+    saveToLocalStorage();
+    setSyncStatus('live');
+  } catch(e) {
+    console.warn('Firebase save failed:', e);
+    saveToLocalStorage();
+    setSyncStatus('offline');
+  }
+}
+
+function saveToLocalStorage() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(matchData)); } catch(e) {}
 }
 
-function loadFromStorage() {
+// Keep old name working (called from Reset button)
+function saveToStorage() { saveToLocalStorage(); }
+
+function initFirebase() {
   try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return;
-    const stored = JSON.parse(raw);
-    // Use stored data if it has more or equal matches than hardcoded (prefer stored)
-    if (stored.length >= matchData.length) {
-      matchData.length = 0;
-      stored.forEach(m => matchData.push(m));
-    } else {
-      // Hardcoded has more (new deploy) — merge: add any stored matches not in hardcoded
-      stored.forEach(m => { if (!matchData.find(hm => hm.num === m.num)) matchData.push(m); });
-      matchData.sort((a,b) => a.num - b.num);
-      saveToStorage(); // update storage with merged set
-    }
-  } catch(e) {}
+    firebase.initializeApp(FB_CONFIG);
+    const db = firebase.firestore();
+    docRef = db.collection('ipl2026').doc('matchData');
+    setSyncStatus('syncing');
+
+    // Real-time listener — fires instantly on any device's update
+    docRef.onSnapshot(snap => {
+      if (snap.exists) {
+        applyRemoteData(snap.data().matches || []);
+      } else {
+        // First ever load — seed Firebase with current hardcoded data
+        docRef.set({ matches: matchData, updatedAt: Date.now() }).catch(()=>{});
+      }
+      setSyncStatus('live');
+    }, err => {
+      console.warn('Firebase listener error:', err.message);
+      setSyncStatus('offline');
+    });
+  } catch(e) {
+    console.warn('Firebase init error:', e);
+    setSyncStatus('offline');
+  }
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{ loadFromStorage(); renderAll(); });
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Render immediately from localStorage cache (feels instant)
+  try {
+    const cached = localStorage.getItem(LS_KEY);
+    if (cached) {
+      const stored = JSON.parse(cached);
+      if (stored.length >= matchData.length) {
+        matchData.length = 0; stored.forEach(m => matchData.push(m));
+      }
+    }
+  } catch(e) {}
+  renderAll();
+  // 2. Connect to Firebase for live sync
+  initFirebase();
+});
 </script>
 </body>
 </html>
