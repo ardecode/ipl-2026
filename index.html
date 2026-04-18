@@ -129,25 +129,15 @@ button:active{transform:scale(0.97);}
 .pill.active{background:var(--pc,var(--accent));border-color:var(--pc,var(--accent));color:#000;font-weight:500;}
 .pill[data-player="all"].active{background:var(--accent);border-color:var(--accent);}
 
-.bottom-nav{display:none;}
-@media(max-width:639px){
-  .bottom-nav{
-    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;
-    background:rgba(22,26,34,0.97);border-top:1px solid var(--border2);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    height:var(--nav-h);padding:0 0.5rem;
-    justify-content:space-around;align-items:center;
-  }
-  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border-radius:8px;cursor:pointer;color:var(--muted);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s,background 0.15s;min-width:44px;touch-action:manipulation;}
-  .nav-item.active{color:var(--accent);}
-  .nav-icon{font-size:1.2rem;line-height:1;}
-  .page{padding-bottom:calc(var(--nav-h) + 1rem);}
-  .mobile-section{display:none;}
-  .mobile-section.active{display:block;}
-}
-@media(min-width:640px){
-  .mobile-section{display:block !important;}
-}
+/* ── TOP NAV TABS ── */
+.top-nav{position:sticky;top:0;z-index:100;background:rgba(13,15,20,0.96);border-bottom:1px solid var(--border2);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.top-nav::-webkit-scrollbar{display:none;}
+.top-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 0;cursor:pointer;color:var(--muted);font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.07em;text-transform:uppercase;border-bottom:2px solid transparent;white-space:nowrap;flex:1;min-width:62px;transition:color 0.15s,border-color 0.15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;}
+.top-nav-item.active{color:var(--accent);border-bottom-color:var(--accent);}
+.top-nav-icon{font-size:1.05rem;line-height:1;}
+/* tab sections */
+.tab-section{display:none;}
+.tab-section.active{display:block;}
 
 .picks-row{display:grid;grid-template-columns:1fr auto auto 55px;gap:0.45rem;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border);}
 .picks-row:last-child{border-bottom:none;}
@@ -224,22 +214,21 @@ button:active{transform:scale(0.97);}
 </head>
 <body>
 
-<!-- Bottom navigation (mobile only) -->
-<nav class="bottom-nav">
-  <div class="nav-item active" data-section="standings" onclick="navTo('standings')">
-    <span class="nav-icon">🏆</span><span>Standings</span>
+<nav class="top-nav">
+  <div class="top-nav-item active" data-section="standings" onclick="navTo('standings')">
+    <span class="top-nav-icon">🏆</span><span>Standings</span>
   </div>
-  <div class="nav-item" data-section="charts" onclick="navTo('charts')">
-    <span class="nav-icon">📈</span><span>Charts</span>
+  <div class="top-nav-item" data-section="charts" onclick="navTo('charts')">
+    <span class="top-nav-icon">📈</span><span>Charts</span>
   </div>
-  <div class="nav-item" data-section="history" onclick="navTo('history')">
-    <span class="nav-icon">📋</span><span>History</span>
+  <div class="top-nav-item" data-section="history" onclick="navTo('history')">
+    <span class="top-nav-icon">📋</span><span>History</span>
   </div>
-  <div class="nav-item" data-section="insights" onclick="navTo('insights')">
-    <span class="nav-icon">🔍</span><span>Insights</span>
+  <div class="top-nav-item" data-section="insights" onclick="navTo('insights')">
+    <span class="top-nav-icon">🔍</span><span>Insights</span>
   </div>
-  <div class="nav-item" data-section="update" onclick="navTo('update')">
-    <span class="nav-icon">➕</span><span>Update</span>
+  <div class="top-nav-item" data-section="update" onclick="navTo('update')">
+    <span class="top-nav-icon">➕</span><span>Update</span>
   </div>
 </nav>
 
@@ -266,7 +255,7 @@ button:active{transform:scale(0.97);}
   </div>
 
   <!-- ═══ SECTION: STANDINGS ═══ -->
-  <div class="mobile-section active" id="sec-standings">
+  <div class="tab-section active" id="sec-standings">
     <div class="grid-3">
       <div class="card">
         <div class="card-title">🏆 Standings</div>
@@ -296,7 +285,7 @@ button:active{transform:scale(0.97);}
   </div>
 
   <!-- ═══ SECTION: CHARTS ═══ -->
-  <div class="mobile-section" id="sec-charts">
+  <div class="tab-section" id="sec-charts">
     <div class="card" style="margin-bottom:1rem;">
       <div class="card-title">📈 Points Progression <span style="font-size:0.6rem;color:var(--muted);font-weight:400">— tap name to isolate</span></div>
       <div id="progress-legend"></div>
@@ -315,7 +304,7 @@ button:active{transform:scale(0.97);}
   </div>
 
   <!-- ═══ SECTION: HISTORY ═══ -->
-  <div class="mobile-section" id="sec-history">
+  <div class="tab-section" id="sec-history">
     <div class="card">
       <div class="card-title">📋 Match-by-Match History</div>
       <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:0.85rem;padding-bottom:4px;">
@@ -339,7 +328,7 @@ button:active{transform:scale(0.97);}
   </div>
 
   <!-- ═══ SECTION: INSIGHTS ═══ -->
-  <div class="mobile-section" id="sec-insights">
+  <div class="tab-section" id="sec-insights">
 
     <div class="section-label">Deep dive</div>
 
@@ -426,6 +415,42 @@ button:active{transform:scale(0.97);}
 
     </div>
 
+    <div class="grid-2" style="margin-bottom:1rem;">
+
+      <!-- Pick Anatomy -->
+      <div class="card">
+        <div class="card-title">🧬 Pick Anatomy — Where Points Come From</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Break down of +5 / +4 / +3 / 0 / -1 matches per player</div>
+        <div id="pick-anatomy-list"></div>
+      </div>
+
+      <!-- Bat & Bowl Mastery -->
+      <div class="card">
+        <div class="card-title">🎯 Bat & Bowl Mastery</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Ranked by combined bat + bowl accuracy</div>
+        <div id="bat-bowl-mastery-list"></div>
+      </div>
+
+    </div>
+
+    <div class="grid-2" style="margin-bottom:1rem;">
+
+      <!-- Comeback Rate -->
+      <div class="card">
+        <div class="card-title">⚡ Bounce-Back Rate — After a -1</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Avg score on the match immediately after losing</div>
+        <div id="comeback-list"></div>
+      </div>
+
+      <!-- Most picked teams -->
+      <div class="card">
+        <div class="card-title">💙 Team Favourites</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Each player's most-picked team this season</div>
+        <div id="team-fav-list"></div>
+      </div>
+
+    </div>
+
     <!-- Points gap chart -->
     <div class="card" style="margin-bottom:1rem;">
       <div class="card-title">📊 Points Gap to Leader — Over Season</div>
@@ -443,7 +468,7 @@ button:active{transform:scale(0.97);}
   </div><!-- end insights section -->
 
   <!-- ═══ SECTION: UPDATE ═══ -->
-  <div class="mobile-section" id="sec-update">
+  <div class="tab-section" id="sec-update">
     <div class="update-section">
       <h3>➕ Add Match Result</h3>
       <p>Paste the WhatsApp result message. The dashboard updates instantly.</p>
@@ -451,6 +476,7 @@ button:active{transform:scale(0.97);}
       <div class="btn-row">
         <button class="btn-primary" onclick="parseUpdate()">Update Dashboard</button>
         <button class="btn-secondary" onclick="document.getElementById('update-input').value=''">Clear</button>
+        <button class="btn-secondary" onclick="if(confirm('Reset to original hardcoded data?')){localStorage.removeItem('ipl2026_matchData');location.reload();}">Reset Data</button>
       </div>
       <div class="parse-status" id="parse-status"></div>
       <div class="format-hint">
@@ -470,12 +496,12 @@ const PLAYERS = ["Abhijith","Akhil","Arijit","Ashish","Jay","Mythy","Rahul","Rak
 const COLORS = {Rahul:"#38bdf8",Arijit:"#a78bfa",Mythy:"#f97316",Akhil:"#34d399",Ashish:"#fb923c",Rakesh:"#f472b6",Yogi:"#facc15",Jay:"#67e8f9",Abhijith:"#c084fc",Vignan:"#86efac"};
 
 let matchData = [
-  {num:1,teams:"RCB vs SRH",winner:"RCB",batsman:"Ishan Kishan",bowler:"Duffy",picks:{Abhijith:{team:"RCB",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"RCB",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"RCB",bat:"",bowl:""},Mythy:{team:"SRH",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:3,Mythy:0,Rahul:0,Rakesh:0,Vignan:-1,Yogi:0}},
+  {num:1,teams:"RCB vs SRH",winner:"RCB",batsman:"Ishan Kishan",bowler:"Duffy",picks:{Abhijith:{team:"RCB",bat:"Jitesh",bowl:"Bhuvi"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Mythy:{team:"SRH",bat:"Ishan",bowl:"Harsh Dubey"},Rahul:{team:"SRH",bat:"Ishan",bowl:"Bhuvi"},Rakesh:{team:"SRH",bat:"Ishan",bowl:"Bhuvi"},Vignan:{team:"SRH",bat:"Abhishek",bowl:"Harshal"},Yogi:{team:"SRH",bat:"Head",bowl:"Duffy"}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:3,Mythy:0,Rahul:0,Rakesh:0,Vignan:-1,Yogi:0}},
   {num:2,teams:"MI vs KKR",winner:"MI",batsman:"Rickelton",bowler:"Shardul",picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Shardul"},Akhil:{team:"MI",bat:"Suryakumar",bowl:"Bumrah"},Arijit:{team:"MI",bat:"Finn Allen",bowl:"Hardik"},Ashish:{team:"MI",bat:"Tilak Varma",bowl:"Trent Boult"},Jay:{team:"MI",bat:"SKY",bowl:"Bumrah"},Mythy:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"MI",bat:"Finn Allen",bowl:"Varun"},Yogi:{team:"",bat:"",bowl:""}},scores:{Abhijith:0,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
-  {num:3,teams:"RR vs CSK",winner:"RR",batsman:"Vaibhav",bowler:"Archer",picks:{Abhijith:{team:"CSK",bat:"Suryavamshi",bowl:"Noor"},Akhil:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre Burger"},Ashish:{team:"",bat:"Vaibhav",bowl:"Jadeja"},Jay:{team:"CSK",bat:"Ruturaj",bowl:"Archer"},Mythy:{team:"CSK",bat:"Jaiswal",bowl:"Sandeep"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"CSK",bat:"",bowl:""},Yogi:{team:"",bat:"",bowl:""}},scores:{Abhijith:0,Akhil:4,Arijit:4,Ashish:0,Jay:0,Mythy:-1,Rahul:4,Rakesh:-1,Vignan:-1,Yogi:-1}},
+  {num:3,teams:"RR vs CSK",winner:"RR",batsman:"Vaibhav",bowler:"Archer",picks:{Abhijith:{team:"CSK",bat:"Suryavamshi",bowl:"Noor"},Akhil:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre Burger"},Ashish:{team:"",bat:"Vaibhav",bowl:"Jadeja"},Jay:{team:"CSK",bat:"Ruturaj",bowl:"Archer"},Mythy:{team:"CSK",bat:"Jaiswal",bowl:"Sandeep"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"CSK",bat:"Sanju Samson",bowl:"Jofra Archer"},Vignan:{team:"CSK",bat:"",bowl:""},Yogi:{team:"CSK",bat:"Yashasvi Jaiswal",bowl:""}},scores:{Abhijith:0,Akhil:4,Arijit:4,Ashish:0,Jay:0,Mythy:-1,Rahul:4,Rakesh:0,Vignan:-1,Yogi:-1}},
   {num:4,teams:"PBKS vs GT",winner:"PBKS",batsman:"Cooper",bowler:"Prasidh",picks:{Abhijith:{team:"PBKS",bat:"Shreyas",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Priyansh Arya",bowl:"Chahal"},Arijit:{team:"PBKS",bat:"Gill",bowl:"Chahal"},Ashish:{team:"GT",bat:"Butler",bowl:"Rabada"},Jay:{team:"PBKS",bat:"Shubman",bowl:"Arshdeep"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Arshdeep"},Rahul:{team:"PBKS",bat:"Shreyas",bowl:"Jansen"},Rakesh:{team:"PBKS",bat:"Shreyas Iyer",bowl:"Rabada"},Vignan:{team:"PBKS",bat:"Prabhsimran",bowl:"Arshdeep"},Yogi:{team:"PBKS",bat:"Sai Sudharshan",bowl:"Jansen"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
-  {num:5,teams:"LSG vs DC",winner:"DC",batsman:"Rizvi",bowler:"Nattu",picks:{Abhijith:{team:"DC",bat:"",bowl:""},Akhil:{team:"DC",bat:"",bowl:""},Arijit:{team:"DC",bat:"",bowl:""},Ashish:{team:"DC",bat:"",bowl:""},Jay:{team:"LSG",bat:"",bowl:""},Mythy:{team:"LSG",bat:"",bowl:""},Rahul:{team:"LSG",bat:"",bowl:""},Rakesh:{team:"DC",bat:"",bowl:""},Vignan:{team:"DC",bat:"",bowl:""},Yogi:{team:"LSG",bat:"",bowl:""}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:3,Vignan:3,Yogi:-1}},
-  {num:6,teams:"KKR vs SRH",winner:"SRH",batsman:"Raghuvanshi",bowler:"Muzarabani",picks:{Abhijith:{team:"KKR",bat:"",bowl:""},Akhil:{team:"SRH",bat:"",bowl:""},Arijit:{team:"SRH",bat:"",bowl:""},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"KKR",bat:"",bowl:""},Mythy:{team:"KKR",bat:"",bowl:""},Rahul:{team:"SRH",bat:"",bowl:""},Rakesh:{team:"SRH",bat:"",bowl:""},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"",bowl:""}},scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
+  {num:5,teams:"LSG vs DC",winner:"DC",batsman:"Rizvi",bowler:"Nattu",picks:{Abhijith:{team:"DC",bat:"KL Rahul",bowl:"Mukesh"},Akhil:{team:"DC",bat:"KL Rahul",bowl:"Kuldeep"},Arijit:{team:"DC",bat:"Pooran",bowl:"Ngidi"},Ashish:{team:"DC",bat:"Marsh",bowl:"Vipraj"},Jay:{team:"LSG",bat:"Aiden",bowl:"Kuldeep"},Mythy:{team:"LSG",bat:"Pooran",bowl:"Digvijesh"},Rahul:{team:"LSG",bat:"Pooran",bowl:"Ngidi"},Rakesh:{team:"DC",bat:"KL Rahul",bowl:"Starc"},Vignan:{team:"DC",bat:"Rahul",bowl:"Kuldeep"},Yogi:{team:"LSG",bat:"KL Rahul",bowl:"Kuldeep"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:3,Vignan:3,Yogi:-1}},
+  {num:6,teams:"KKR vs SRH",winner:"SRH",batsman:"Raghuvanshi",bowler:"Muzarabani",picks:{Abhijith:{team:"KKR",bat:"Ishan",bowl:"Varun Chakravarthy"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Jaydev"},Arijit:{team:"SRH",bat:"Travis",bowl:"Harsh"},Ashish:{team:"SRH",bat:"Head",bowl:"Shivang"},Jay:{team:"KKR",bat:"Finn",bowl:"Varun"},Mythy:{team:"KKR",bat:"Finn",bowl:"Arora"},Rahul:{team:"SRH",bat:"Klaasen",bowl:"Shivang"},Rakesh:{team:"SRH",bat:"Abhishek",bowl:"Unadkat"},Vignan:{team:"SRH",bat:"",bowl:""},Yogi:{team:"SRH",bat:"Abhishek",bowl:"Harshal Patel"}},scores:{Abhijith:-1,Akhil:3,Arijit:3,Ashish:3,Jay:-1,Mythy:-1,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
   {num:7,teams:"CSK vs PBKS",winner:"PBKS",batsman:"Ayush",bowler:"Vyshak",picks:{Abhijith:{team:"PBKS",bat:"Samson",bowl:"Chahal"},Akhil:{team:"PBKS",bat:"Shreyas",bowl:"Bartlett"},Arijit:{team:"PBKS",bat:"Arya",bowl:"Jansen"},Ashish:{team:"CSK",bat:"",bowl:""},Jay:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Mythy:{team:"PBKS",bat:"Cooper",bowl:"Vyshak"},Rahul:{team:"PBKS",bat:"Arya",bowl:"Chahal"},Rakesh:{team:"PBKS",bat:"Prabhsimran",bowl:"Kaleel Ahmed"},Vignan:{team:"PBKS",bat:"Samson",bowl:"Jansen"},Yogi:{team:"PBKS",bat:"Gaikwad",bowl:"Chahal"}},scores:{Abhijith:3,Akhil:3,Arijit:3,Ashish:-1,Jay:3,Mythy:4,Rahul:3,Rakesh:3,Vignan:3,Yogi:3}},
   {num:8,teams:"DC vs MI",winner:"DC",batsman:"Sameer",bowler:"Mukesh",picks:{Abhijith:{team:"MI",bat:"Rohit",bowl:"Shardul"},Akhil:{team:"MI",bat:"Rahul",bowl:"Bumrah"},Arijit:{team:"MI",bat:"SKY",bowl:"Shardul"},Ashish:{team:"MI",bat:"Rohit",bowl:"Boult"},Jay:{team:"MI",bat:"Rahul",bowl:"Shardul"},Mythy:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Rahul:{team:"MI",bat:"SKY",bowl:"Shardul"},Rakesh:{team:"MI",bat:"Rickelton",bowl:"Shardul"},Vignan:{team:"MI",bat:"Rohit",bowl:"Hardik"},Yogi:{team:"MI",bat:"Ryan",bowl:"Santner"}},scores:{Abhijith:-1,Akhil:-1,Arijit:-1,Ashish:-1,Jay:-1,Mythy:-1,Rahul:-1,Rakesh:-1,Vignan:-1,Yogi:-1}},
   {num:9,teams:"GT vs RR",winner:"RR",batsman:"Jurel",bowler:"Bishnoi",picks:{Abhijith:{team:"RR",bat:"Vaibhav",bowl:"Siraj"},Akhil:{team:"GT",bat:"Sudharsan",bowl:"Rabada"},Arijit:{team:"RR",bat:"Vaibhav",bowl:"Nandre"},Ashish:{team:"GT",bat:"Vaibhav",bowl:"Rashid Khan"},Jay:{team:"GT",bat:"Jurel",bowl:"Rashid"},Mythy:{team:"RR",bat:"Jurel",bowl:"Archer"},Rahul:{team:"RR",bat:"Vaibhav",bowl:"Sandeep"},Rakesh:{team:"RR",bat:"Sudharsan",bowl:"Rabada"},Vignan:{team:"GT",bat:"Butler",bowl:"Burger"},Yogi:{team:"RR",bat:"Jaiswal",bowl:"Burger"}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:0,Mythy:4,Rahul:3,Rakesh:3,Vignan:-1,Yogi:3}},
@@ -503,9 +529,9 @@ let currentNav = 'standings';
 
 function navTo(section) {
   currentNav = section;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === section));
+  document.querySelectorAll('.top-nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === section));
   const sectionMap = {standings:'sec-standings', charts:'sec-charts', history:'sec-history', insights:'sec-insights', update:'sec-update'};
-  document.querySelectorAll('.mobile-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
   const target = document.getElementById(sectionMap[section]);
   if (target) target.classList.add('active');
   if (section === 'charts' && !charts.progress) { renderProgressChart(); renderAvgChart(); }
@@ -561,9 +587,6 @@ function getPicksStats() {
 function renderAll() {
   renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView();
   renderInsightsStatic();
-  const isMobile = window.innerWidth < 640;
-  if (!isMobile || currentNav === 'charts') { renderProgressChart(); renderAvgChart(); }
-  if (!isMobile || currentNav === 'insights') { renderInsightsCharts(); }
 }
 
 function renderMetrics() {
@@ -619,7 +642,7 @@ function renderAccuracy() {
 }
 
 function renderPicksList(id, data, min=2) {
-  const sorted=Object.entries(data).filter(([,s])=>s.picks>=min).sort((a,b)=>b[1].picks-a[1].picks);
+  const sorted=Object.entries(data).filter(([,s])=>s.picks>=min).sort((a,b)=>{const pa=a[1].picks?a[1].wins/a[1].picks:0,pb=b[1].picks?b[1].wins/b[1].picks:0;return pb-pa||b[1].picks-a[1].picks;});
   document.getElementById(id).innerHTML = sorted.map(([name,s])=>{
     const pct=s.picks?Math.round(s.wins/s.picks*100):0;
     const col=pct>=40?'var(--green)':pct>=20?'var(--yellow)':'var(--red)';
@@ -769,12 +792,17 @@ function togglePlayer(p) {
 // ══════════════════════════════════════════════
 
 function renderInsightsStatic() {
+  renderInsightKPIs();
   renderCrowdIQ();
   renderContrarians();
   renderPeakStreaks();
   renderDuos();
   renderHeatmap();
   renderBoomBust();
+  renderPickAnatomy();
+  renderBatBowlMastery();
+  renderComebackRate();
+  renderTeamFavourites();
 }
 
 function renderInsightsCharts() {
@@ -1112,6 +1140,161 @@ function renderDistChart() {
   });
 }
 
+// Dynamic insight KPIs
+function renderInsightKPIs() {
+  const played = matchData.filter(m => m.winner !== 'Abandoned');
+  // Crowd IQ
+  let crowdRight = 0, crowdTotal = 0;
+  played.forEach(m => {
+    const picks = PLAYERS.map(p => (m.picks[p]||{}).team||'').filter(t=>t);
+    if (!picks.length) return;
+    const counts = {}; picks.forEach(t => { const k=t.toUpperCase(); counts[k]=(counts[k]||0)+1; });
+    const [top, cnt] = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    if (cnt < 6) return;
+    crowdTotal++;
+    const w = m.winner.toUpperCase();
+    if (top===w||w.includes(top)||top.includes(w)) crowdRight++;
+  });
+  // Hardest / Easiest match
+  let hardestM = null, hardestScore = 99, easiestM = null, easiestScore = -1;
+  played.forEach(m => {
+    const wins = PLAYERS.filter(p => (m.scores[p]||0) > 0).length;
+    if (wins < hardestScore) { hardestScore = wins; hardestM = m; }
+    if (wins > easiestScore) { easiestScore = wins; easiestM = m; }
+  });
+  // Top contrarian
+  const heroCount = {};
+  PLAYERS.forEach(p => heroCount[p]=0);
+  played.forEach(m => {
+    const picks = PLAYERS.map(p => (m.picks[p]||{}).team||'').filter(t=>t);
+    if (picks.length < 6) return;
+    const counts = {}; picks.forEach(t => { const k=t.toUpperCase(); counts[k]=(counts[k]||0)+1; });
+    const [top, cnt] = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    if (cnt < 6) return;
+    const w = m.winner.toUpperCase();
+    if (top===w||w.includes(top)||top.includes(w)) return;
+    PLAYERS.forEach(p => {
+      const pt=(m.picks[p]||{}).team||''; if(!pt) return;
+      const ptu=pt.toUpperCase();
+      if(ptu===w||w.includes(ptu)||ptu.includes(w)) heroCount[p]++;
+    });
+  });
+  const topCon = Object.entries(heroCount).sort((a,b)=>b[1]-a[1])[0];
+  // Update DOM
+  const iq = document.querySelector('.insight-kpi-val.green');
+  if (iq && crowdTotal) iq.textContent = Math.round(crowdRight/crowdTotal*100)+'%';
+  const kpis = document.querySelectorAll('.insight-kpi-val');
+  if (kpis[1] && hardestM) { kpis[1].textContent = `M${hardestM.num}`; kpis[1].nextElementSibling.textContent = hardestM.teams+' ('+hardestScore+'/10 right)'; }
+  if (kpis[2] && easiestM) { kpis[2].textContent = `M${easiestM.num}`; kpis[2].nextElementSibling.textContent = easiestM.teams+' ('+easiestScore+'/10 right)'; }
+  if (kpis[3] && topCon) { kpis[3].textContent = topCon[0]; kpis[3].nextElementSibling.textContent = topCon[1]+'× bucked the crowd & won'; }
+}
+
+// Pick Anatomy
+function renderPickAnatomy() {
+  const s = getFinalStandings();
+  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const played = matchData.filter(m => m.winner !== 'Abandoned');
+
+  const html = sorted.map(p => {
+    const c5 = played.filter(m=>m.scores[p]===5||m.scores[p]===6).length;
+    const c4 = played.filter(m=>m.scores[p]===4).length;
+    const c3 = played.filter(m=>m.scores[p]===3).length;
+    const c0 = played.filter(m=>m.scores[p]===0||m.scores[p]===1).length;
+    const cm = played.filter(m=>(m.scores[p]||0)<0).length;
+    const total = played.length || 1;
+    const bars = [
+      {val:c5,col:'#22c55e',label:'+5'},
+      {val:c4,col:'#34d399',label:'+4'},
+      {val:c3,col:'#6ee7b7',label:'+3'},
+      {val:c0,col:'#fbbf24aa',label:'0'},
+      {val:cm,col:'#f87171',label:'-1'},
+    ];
+    const barHTML = bars.map(b=>`<div title="${b.label}: ${b.val}" style="flex:${b.val||0.01};background:${b.col};height:100%;min-width:${b.val?2:0}px"></div>`).join('');
+    return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid var(--border)">
+      <span style="min-width:64px;font-size:0.8rem;font-weight:700;color:${COLORS[p]}">${p}</span>
+      <div style="flex:1;height:14px;border-radius:3px;overflow:hidden;display:flex">${barHTML}</div>
+      <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);min-width:90px;text-align:right">${c5}×+5 ${c4}×+4 ${c3}×+3</span>
+    </div>`;
+  }).join('');
+
+  const legend = `<div style="display:flex;gap:10px;margin-bottom:0.6rem;font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);flex-wrap:wrap">
+    ${[['#22c55e','+5'],['#34d399','+4'],['#6ee7b7','+3'],['#fbbf24aa','0'],['#f87171','-1']].map(([c,l])=>`<span><span style="display:inline-block;width:8px;height:8px;background:${c};border-radius:2px;margin-right:3px;vertical-align:middle"></span>${l}</span>`).join('')}
+  </div>`;
+  document.getElementById('pick-anatomy-list').innerHTML = legend + html;
+}
+
+// Bat & Bowl Mastery
+function renderBatBowlMastery() {
+  const wr = getWinRates();
+  const sorted = Object.entries(wr).sort((a,b) => (b[1].batRate+b[1].bowlRate) - (a[1].batRate+a[1].bowlRate));
+  document.getElementById('bat-bowl-mastery-list').innerHTML = sorted.map(([p,s]) => {
+    const batCol = s.batRate>=30?'var(--green)':s.batRate>=15?'var(--yellow)':'var(--red)';
+    const bowlCol = s.bowlRate>=30?'var(--green)':s.bowlRate>=15?'var(--yellow)':'var(--red)';
+    const combined = ((s.batRate+s.bowlRate)/2).toFixed(0);
+    return `<div style="padding:0.4rem 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="font-weight:700;color:${COLORS[p]};font-size:0.85rem">${p}</span>
+        <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">avg ${combined}%</span>
+      </div>
+      <div style="display:flex;gap:0.6rem;font-family:var(--font-mono);font-size:0.62rem">
+        <span>🏏 Bat: <span style="color:${batCol}">${s.batCorrect}/${s.batTotal} (${s.batRate.toFixed(0)}%)</span></span>
+        <span>🎳 Bowl: <span style="color:${bowlCol}">${s.bowlCorrect}/${s.bowlTotal} (${s.bowlRate.toFixed(0)}%)</span></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Comeback Rate
+function renderComebackRate() {
+  const comebacks = {};
+  PLAYERS.forEach(p => {
+    let sum = 0, count = 0;
+    matchData.forEach((m, i) => {
+      if (i === 0) return;
+      const prev = matchData[i-1].scores[p];
+      if (prev < 0) { sum += (m.scores[p]||0); count++; }
+    });
+    comebacks[p] = { avg: count ? sum/count : 0, count };
+  });
+  const sorted = Object.entries(comebacks).sort((a,b)=>b[1].avg-a[1].avg);
+  document.getElementById('comeback-list').innerHTML = sorted.map(([p,d]) => {
+    const col = d.avg >= 3 ? 'var(--green)' : d.avg >= 1 ? 'var(--yellow)' : 'var(--red)';
+    const pct = Math.max(0, Math.min(100, (d.avg + 1) / 6 * 100));
+    return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.38rem 0;border-bottom:1px solid var(--border)">
+      <span style="min-width:64px;font-weight:700;font-size:0.82rem;color:${COLORS[p]}">${p}</span>
+      <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.72rem;color:${col};min-width:36px;text-align:right">${d.avg>0?'+':''}${d.avg.toFixed(1)}</span>
+      <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">(${d.count}×)</span>
+    </div>`;
+  }).join('');
+}
+
+// Team Favourites
+function renderTeamFavourites() {
+  const teamCounts = {};
+  PLAYERS.forEach(p => {
+    const counts = {};
+    matchData.forEach(m => {
+      const t = (m.picks[p]||{}).team||''; if (!t) return;
+      const k = t.toUpperCase(); counts[k]=(counts[k]||0)+1;
+    });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    teamCounts[p] = sorted.slice(0,2);
+  });
+  const s = getFinalStandings();
+  const sortedP = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  document.getElementById('team-fav-list').innerHTML = sortedP.map(p => {
+    const favs = teamCounts[p]||[];
+    const favsHTML = favs.map(([team,cnt])=>`<span class="team-pill">${team} ×${cnt}</span>`).join(' ');
+    return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.38rem 0;border-bottom:1px solid var(--border)">
+      <span style="min-width:64px;font-weight:700;font-size:0.82rem;color:${COLORS[p]}">${p}</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">${favsHTML}</div>
+    </div>`;
+  }).join('');
+}
+
 function parseUpdate() {
   const raw=document.getElementById('update-input').value.trim();
   const status=document.getElementById('parse-status');
@@ -1134,13 +1317,38 @@ function parseUpdate() {
     if (ei>=0) { matchData[ei]=newM; status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} updated!`; }
     else { matchData.push(newM); matchData.sort((a,b)=>a.num-b.num); status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} added!`; }
     charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
+    saveToStorage();
     renderAll();
     document.getElementById('update-input').value='';
     navTo('standings');
   } catch(e) { status.className='parse-status parse-err'; status.textContent='✗ '+e.message; }
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{ renderAll(); });
+const LS_KEY = 'ipl2026_matchData';
+
+function saveToStorage() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(matchData)); } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const stored = JSON.parse(raw);
+    // Use stored data if it has more or equal matches than hardcoded (prefer stored)
+    if (stored.length >= matchData.length) {
+      matchData.length = 0;
+      stored.forEach(m => matchData.push(m));
+    } else {
+      // Hardcoded has more (new deploy) — merge: add any stored matches not in hardcoded
+      stored.forEach(m => { if (!matchData.find(hm => hm.num === m.num)) matchData.push(m); });
+      matchData.sort((a,b) => a.num - b.num);
+      saveToStorage(); // update storage with merged set
+    }
+  } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{ loadFromStorage(); renderAll(); });
 </script>
 </body>
 </html>
