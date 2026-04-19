@@ -213,6 +213,30 @@ button:active{transform:scale(0.97);}
 .bw-bar-inner { height:100%; border-radius:3px; }
 .bw-val { min-width:22px; text-align:right; }
 
+/* ── BAR CHART RACE ── */
+.race-overlay { display:none; position:fixed; inset:0; z-index:400; background:#080a0f; flex-direction:column; }
+.race-overlay.open { display:flex; }
+.race-header { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem 0.5rem; flex-shrink:0; }
+.race-title { font-size:1.1rem; font-weight:800; letter-spacing:-0.02em; }
+.race-title span { color:var(--accent); }
+.race-match-badge { font-family:var(--font-mono); font-size:0.65rem; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; padding:4px 10px; color:var(--text); }
+.race-chart-area { flex:1; position:relative; padding:0 1.25rem; overflow:hidden; }
+.race-row { position:absolute; left:1.25rem; right:1.25rem; display:flex; align-items:center; gap:0.5rem; transition:top 0.55s cubic-bezier(0.4,0,0.2,1); }
+.race-rank { font-family:var(--font-mono); font-size:0.65rem; color:var(--muted); width:18px; text-align:right; flex-shrink:0; }
+.race-name { font-weight:800; font-size:0.9rem; width:72px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.race-bar-track { flex:1; height:28px; background:rgba(255,255,255,0.04); border-radius:6px; overflow:hidden; position:relative; }
+.race-bar-fill { height:100%; border-radius:6px; transition:width 0.55s cubic-bezier(0.4,0,0.2,1); position:relative; min-width:4px; }
+.race-bar-fill::after { content:''; position:absolute; top:0; left:0; right:0; height:40%; background:rgba(255,255,255,0.15); border-radius:6px 6px 0 0; }
+.race-pts { font-family:var(--font-mono); font-size:0.8rem; font-weight:700; width:36px; text-align:right; flex-shrink:0; transition:color 0.3s; }
+.race-controls { display:flex; align-items:center; justify-content:center; gap:0.75rem; padding:0.85rem 1.25rem; flex-shrink:0; flex-wrap:wrap; }
+.race-btn { background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:8px; padding:8px 16px; font-size:1rem; cursor:pointer; min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+.race-btn:hover { background:var(--border2); }
+.race-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-size:1.2rem; padding:8px 22px; }
+.race-scrubber { flex:1; max-width:260px; accent-color:var(--accent); height:4px; cursor:pointer; }
+.race-speed { font-family:var(--font-mono); font-size:0.65rem; background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:6px; padding:6px 10px; cursor:pointer; }
+.race-footer { font-family:var(--font-mono); font-size:0.62rem; color:var(--muted); text-align:center; padding-bottom:0.75rem; flex-shrink:0; }
+@media(max-width:480px) { .race-name { width:56px; font-size:0.8rem; } .race-pts { width:28px; font-size:0.72rem; } }
+
 .badge-pill{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-mono);font-size:0.55rem;padding:2px 6px;border-radius:12px;white-space:nowrap;}
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow-y:auto;padding:1rem;-webkit-overflow-scrolling:touch;}
 .modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;padding-top:2rem;}
@@ -325,6 +349,16 @@ select:focus{border-color:var(--accent);}
 
   <!-- ═══ SECTION: CHARTS ═══ -->
   <div class="tab-section" id="sec-charts">
+    <!-- Race launch card -->
+    <div class="card" style="margin-bottom:1rem;background:linear-gradient(135deg,rgba(249,115,22,0.08),rgba(167,139,250,0.08));border-color:rgba(249,115,22,0.2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+        <div>
+          <div style="font-size:1rem;font-weight:800;margin-bottom:0.25rem">🏎️ Season Replay</div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">Watch the entire season unfold — rankings crossing in real time</div>
+        </div>
+        <button class="btn-primary" style="display:flex;align-items:center;gap:8px;font-size:0.85rem;padding:0.65rem 1.4rem" onclick="openRace()">▶ Play Race</button>
+      </div>
+    </div>
     <div class="card" style="margin-bottom:1rem;">
       <div class="card-title">📈 Points Progression <span style="font-size:0.6rem;color:var(--muted);font-weight:400">— tap name to isolate</span></div>
       <div id="progress-legend"></div>
@@ -618,6 +652,31 @@ select:focus{border-color:var(--accent);}
     <button class="modal-close" onclick="closeEditModal()">×</button>
     <div id="edit-modal-body"></div>
   </div>
+</div>
+
+<!-- ═══ BAR CHART RACE OVERLAY ═══ -->
+<div class="race-overlay" id="race-overlay">
+  <div class="race-header">
+    <div>
+      <div class="race-title">Season <span>Replay</span></div>
+      <div id="race-match-badge" class="race-match-badge" style="margin-top:4px">IPL 2026 Prediction League</div>
+    </div>
+    <button class="race-btn" onclick="closeRace()" style="font-size:1.1rem">×</button>
+  </div>
+  <div class="race-chart-area" id="race-chart-area"></div>
+  <div class="race-controls">
+    <button class="race-btn" onclick="raceStep(-1)" title="Previous">⏮</button>
+    <button class="race-btn primary" id="race-play-btn" onclick="raceTogglePlay()">▶</button>
+    <button class="race-btn" onclick="raceStep(1)" title="Next">⏭</button>
+    <input type="range" class="race-scrubber" id="race-scrubber" min="0" value="0" oninput="raceSeek(this.value)">
+    <select class="race-speed" id="race-speed-sel" onchange="raceUpdateSpeed()">
+      <option value="1200">Slow</option>
+      <option value="750" selected>Normal</option>
+      <option value="350">Fast</option>
+      <option value="120">Turbo</option>
+    </select>
+  </div>
+  <div class="race-footer" id="race-footer">Match 0 of 0</div>
 </div>
 
 <div class="modal-overlay" id="profile-modal" onclick="if(event.target===this)closeProfile()">
@@ -1739,6 +1798,142 @@ function showPlayerProfile(p) {
 function closeProfile() {
   document.getElementById('profile-modal').classList.remove('open');
   document.body.style.overflow='';
+}
+
+// ══════════════════════════════════════════════
+// BAR CHART RACE
+// ══════════════════════════════════════════════
+let raceFrame = -1; // -1 = before any match
+let racePlaying = false;
+let raceTimer = null;
+let raceSpeed = 750;
+
+function openRace() {
+  const overlay = document.getElementById('race-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  buildRaceRows();
+  raceFrame = -1;
+  document.getElementById('race-scrubber').max = matchData.length - 1;
+  document.getElementById('race-scrubber').value = 0;
+  renderRaceFrame(-1);
+}
+
+function closeRace() {
+  racePause();
+  document.getElementById('race-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function buildRaceRows() {
+  const area = document.getElementById('race-chart-area');
+  area.innerHTML = '';
+  const ROW_H = Math.min(52, Math.floor((window.innerHeight - 180) / PLAYERS.length));
+  area.style.height = (ROW_H * PLAYERS.length) + 'px';
+  area.dataset.rowH = ROW_H;
+
+  PLAYERS.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'race-row';
+    row.id = `race-row-${p}`;
+    row.style.top = `${i * ROW_H}px`;
+    row.style.height = `${ROW_H - 6}px`;
+    row.innerHTML = `
+      <span class="race-rank" id="race-rank-${p}">—</span>
+      <span class="race-name" style="color:${COLORS[p]}">${p}</span>
+      <div class="race-bar-track">
+        <div class="race-bar-fill" id="race-bar-${p}" style="background:${COLORS[p]};width:0%"></div>
+      </div>
+      <span class="race-pts" id="race-pts-${p}" style="color:${COLORS[p]}">0</span>`;
+    area.appendChild(row);
+  });
+}
+
+function getCumAtFrame(frame) {
+  const cum = {};
+  PLAYERS.forEach(p => cum[p] = 0);
+  for (let i = 0; i <= frame && i < matchData.length; i++) {
+    PLAYERS.forEach(p => { cum[p] += (matchData[i].scores[p] || 0); });
+  }
+  return cum;
+}
+
+function renderRaceFrame(frame) {
+  const cum = getCumAtFrame(frame);
+  const sorted = [...PLAYERS].sort((a, b) => cum[b] - cum[a] || PLAYERS.indexOf(a) - PLAYERS.indexOf(b));
+  const maxScore = Math.max(...Object.values(cum), 1);
+  const ROW_H = parseInt(document.getElementById('race-chart-area').dataset.rowH || 50);
+  const medals = ['🥇','🥈','🥉'];
+
+  sorted.forEach((p, rank) => {
+    const pts = cum[p];
+    const row = document.getElementById(`race-row-${p}`);
+    const bar = document.getElementById(`race-bar-${p}`);
+    const ptsEl = document.getElementById(`race-pts-${p}`);
+    const rankEl = document.getElementById(`race-rank-${p}`);
+    if (!row) return;
+
+    row.style.top = `${rank * ROW_H}px`;
+    bar.style.width = `${Math.max(0, (pts / maxScore) * 100)}%`;
+    ptsEl.textContent = pts;
+    rankEl.textContent = rank < 3 ? medals[rank] : rank + 1;
+  });
+
+  // Match badge
+  const badge = document.getElementById('race-match-badge');
+  const footer = document.getElementById('race-footer');
+  const scrubber = document.getElementById('race-scrubber');
+  if (frame < 0) {
+    badge.textContent = 'Before the season starts';
+    footer.textContent = `Match 0 of ${matchData.length}`;
+    scrubber.value = 0;
+  } else {
+    const m = matchData[frame];
+    badge.innerHTML = `<span style="color:var(--accent)">M${m.num}</span> · ${m.teams} · <span style="color:var(--green)">🏆 ${m.winner}</span>${m.batsman ? ` · <span style="color:var(--accent2)">🏏 ${m.batsman}</span>` : ''}${m.bowler ? ` · <span style="color:var(--accent3)">🎳 ${m.bowler}</span>` : ''}`;
+    footer.textContent = `Match ${frame + 1} of ${matchData.length}`;
+    scrubber.value = frame;
+  }
+}
+
+function raceStep(dir) {
+  racePause();
+  const next = raceFrame + dir;
+  if (next < -1 || next >= matchData.length) return;
+  raceFrame = next;
+  renderRaceFrame(raceFrame);
+}
+
+function raceSeek(val) {
+  racePause();
+  raceFrame = parseInt(val);
+  renderRaceFrame(raceFrame);
+}
+
+function raceTogglePlay() {
+  racePlaying ? racePause() : racePlay();
+}
+
+function racePlay() {
+  if (raceFrame >= matchData.length - 1) { raceFrame = -1; renderRaceFrame(-1); }
+  racePlaying = true;
+  document.getElementById('race-play-btn').textContent = '⏸';
+  raceTimer = setInterval(() => {
+    raceFrame++;
+    renderRaceFrame(raceFrame);
+    if (raceFrame >= matchData.length - 1) racePause();
+  }, raceSpeed);
+}
+
+function racePause() {
+  racePlaying = false;
+  clearInterval(raceTimer);
+  const btn = document.getElementById('race-play-btn');
+  if (btn) btn.textContent = '▶';
+}
+
+function raceUpdateSpeed() {
+  raceSpeed = parseInt(document.getElementById('race-speed-sel').value);
+  if (racePlaying) { racePause(); racePlay(); }
 }
 
 function parseUpdate() {
