@@ -1491,7 +1491,9 @@ function renderTeamFavourites() {
   });
   const s = getFinalStandings();
   const sortedP = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
-  document.getElementById('team-fav-list').innerHTML = sortedP.map(p => {
+  const favEl = document.getElementById('team-fav-list');
+  if (!favEl) return;
+  favEl.innerHTML = sortedP.map(p => {
     const favs = teamCounts[p]||[];
     const favsHTML = favs.map(([team,cnt])=>`<span class="team-pill">${team} ×${cnt}</span>`).join(' ');
     return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.38rem 0;border-bottom:1px solid var(--border)">
