@@ -340,10 +340,6 @@ select:focus{border-color:var(--accent);}
           <div id="picks-bowl-list"></div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">🏁 Points Projection</div>
-        <div id="projection-list"></div>
-      </div>
     </div>
   </div>
 
@@ -488,13 +484,6 @@ select:focus{border-color:var(--accent);}
         </div>
       </div>
 
-      <!-- Points volatility -->
-      <div class="card">
-        <div class="card-title">📉 Boom & Bust — Best vs Worst Matches</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Green bar = best single match score. Red = worst run (consecutive -1s).</div>
-        <div id="boom-bust-list"></div>
-      </div>
-
     </div>
 
     <div class="grid-2" style="margin-bottom:1rem;">
@@ -536,19 +525,6 @@ select:focus{border-color:var(--accent);}
 
     </div>
 
-    <!-- Points gap chart -->
-    <div class="card" style="margin-bottom:1rem;">
-      <div class="card-title">📊 Points Gap to Leader — Over Season</div>
-      <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">How far behind the leader is each player after every match? Closer to 0 = challenging for top spot.</div>
-      <div id="gap-legend" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:0.75rem;"></div>
-      <div class="chart-wrap" style="height:280px;"><canvas id="gapChart"></canvas></div>
-    </div>
-
-    <!-- Score distribution -->
-    <div class="card" style="margin-bottom:1rem;">
-      <div class="card-title">📦 Score Distribution — How Often Each Player Scores +3, +4, +5 vs -1</div>
-      <div class="chart-wrap" style="height:300px;"><canvas id="distChart"></canvas></div>
-    </div>
 
   </div><!-- end insights section -->
 
@@ -733,7 +709,7 @@ function navTo(section) {
   const target = document.getElementById(sectionMap[section]);
   if (target) target.classList.add('active');
   if (section === 'charts' && !charts.progress) { renderProgressChart(); renderAvgChart(); }
-  if (section === 'insights' && !charts.gap) { renderInsightsCharts(); }
+  if (section === 'insights') { renderInsightsCharts(); }
   if (section === 'update') { checkAdminSession(); }
   if (section === 'schedule') { renderFixtures(); startCountdown(); }
   window.scrollTo({top:0, behavior:'smooth'});
@@ -786,7 +762,7 @@ function getPicksStats() {
 
 function renderAll() {
   renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView();
-  renderInsightsStatic(); renderPointsProjection(); initH2H();
+  renderInsightsStatic(); initH2H();
 }
 
 function renderMetrics() {
@@ -1002,7 +978,6 @@ function renderInsightsStatic() {
   renderPeakStreaks();
   renderDuos();
   renderHeatmap();
-  renderBoomBust();
   renderPickAnatomy();
   renderBatBowlMastery();
   renderComebackRate();
@@ -1011,10 +986,7 @@ function renderInsightsStatic() {
   buildTeamPLPills();
 }
 
-function renderInsightsCharts() {
-  renderGapChart();
-  renderDistChart();
-}
+function renderInsightsCharts() {}
 
 // Crowd IQ — when majority picked same team
 function renderCrowdIQ() {
@@ -1213,138 +1185,6 @@ function renderHeatmap() {
     ${legend}`;
 }
 
-// Boom and bust
-function renderBoomBust() {
-  const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
-
-  const html = sorted.map(p => {
-    const allScores = matchData.map(m => m.scores[p] || 0);
-    const bestScore = Math.max(...allScores);
-    const bestMatch = matchData[allScores.indexOf(bestScore)];
-
-    // Count max consecutive -1s
-    let maxNeg = 0, curNeg = 0;
-    allScores.forEach(sc => { if(sc < 0){curNeg++;maxNeg=Math.max(maxNeg,curNeg);}else curNeg=0; });
-
-    const totalMatches = 25;
-    const bestPct = (bestScore / 5) * 100;
-    const negPct = (maxNeg / 5) * 100;
-
-    return `<div class="best-worst-row">
-      <span class="bw-name" style="color:${COLORS[p]}">${p}</span>
-      <div class="bw-bar-area">
-        <div class="bw-bar-row">
-          <span class="bw-bar-label" style="color:var(--green)">best</span>
-          <div class="bw-bar-outer"><div class="bw-bar-inner" style="width:${bestPct}%;background:var(--green)"></div></div>
-          <span class="bw-val" style="color:var(--green)">+${bestScore}</span>
-          <span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-left:4px">${bestMatch?'M'+bestMatch.num:''}</span>
-        </div>
-        <div class="bw-bar-row">
-          <span class="bw-bar-label" style="color:var(--red)">−run</span>
-          <div class="bw-bar-outer"><div class="bw-bar-inner" style="width:${negPct}%;background:var(--red)"></div></div>
-          <span class="bw-val" style="color:var(--red)">${maxNeg}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('boom-bust-list').innerHTML = html;
-}
-
-// Gap to leader chart
-function renderGapChart() {
-  const cum = getCumulativeScores();
-  const labels = matchData.map(m => 'M'+m.num);
-  if (charts.gap) charts.gap.destroy();
-
-  const datasets = PLAYERS.map(p => {
-    const gapData = matchData.map((m, i) => {
-      const leaderScore = Math.max(...PLAYERS.map(pp => cum[pp][i]));
-      return leaderScore - cum[p][i];
-    });
-    return {
-      label: p,
-      data: gapData,
-      borderColor: COLORS[p],
-      backgroundColor: 'transparent',
-      borderWidth: 1.5,
-      pointRadius: 0,
-      tension: 0.3
-    };
-  });
-
-  const ctx = document.getElementById('gapChart').getContext('2d');
-  charts.gap = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1e2330', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-          titleFont: { family: "'DM Mono'", size: 10 }, bodyFont: { family: "'DM Mono'", size: 10 },
-          callbacks: {
-            afterTitle: items => matchData[items[0].dataIndex]?.teams||'',
-            label: item => ` ${item.dataset.label}: -${item.parsed.y} pts behind`
-          }
-        }
-      },
-      scales: {
-        x: { ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"}}, grid:{color:'rgba(255,255,255,0.04)'} },
-        y: {
-          reverse: false,
-          ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"},callback:v=>'-'+v},
-          grid:{color:'rgba(255,255,255,0.04)'}
-        }
-      }
-    }
-  });
-
-  // Legend
-  const legend = document.getElementById('gap-legend');
-  legend.innerHTML = PLAYERS.map(p=>`
-    <span style="font-family:var(--font-mono);font-size:0.65rem;padding:3px 9px;border-radius:20px;border:1.5px solid ${COLORS[p]};color:${COLORS[p]};background:${COLORS[p]}22">${p}</span>
-  `).join('');
-}
-
-// Score distribution chart
-function renderDistChart() {
-  const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
-
-  if (charts.dist) charts.dist.destroy();
-
-  const counts = (val) => sorted.map(p => matchData.filter(m => m.scores[p] === val).length);
-
-  const ctx = document.getElementById('distChart').getContext('2d');
-  charts.dist = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: sorted,
-      datasets: [
-        { label: '+5', data: counts(5), backgroundColor: '#22c55ecc', borderRadius: 3 },
-        { label: '+4', data: counts(4), backgroundColor: '#34d399cc', borderRadius: 3 },
-        { label: '+3', data: counts(3), backgroundColor: '#6ee7b7cc', borderRadius: 3 },
-        { label: '0', data: counts(0), backgroundColor: '#fbbf24cc', borderRadius: 3 },
-        { label: '-1', data: counts(-1), backgroundColor: '#f87171cc', borderRadius: 3 },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { backgroundColor:'#1e2330', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, bodyFont:{family:"'DM Mono'",size:10} }
-      },
-      scales: {
-        x: { stacked: true, ticks:{color:'#f0f2f7',font:{size:10,family:"'Syne'",weight:'700'}}, grid:{display:false} },
-        y: { stacked: true, ticks:{color:'#6b7280',font:{size:9,family:"'DM Mono'"}}, grid:{color:'rgba(255,255,255,0.04)'} }
-      }
-    }
-  });
-}
 
 // Dynamic insight KPIs
 function renderInsightKPIs() {
@@ -1554,43 +1394,6 @@ function badgesHTML(badges) {
   return badges.map(b=>`<span class="badge-pill" style="background:${b.color}22;border:1px solid ${b.color}44;color:${b.color}">${b.icon} ${b.label}</span>`).join('');
 }
 
-// ══ POINTS PROJECTION ══
-function renderPointsProjection() {
-  const TOTAL = 74;
-  const remaining = Math.max(0, TOTAL - matchData.length);
-  const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
-  const leaderPts = sorted[0][1];
-  const maxPossible = leaderPts + remaining * 5;
-
-  const rows = sorted.map(([p, pts], i) => {
-    const myMax = pts + remaining * 5;
-    const canWin = myMax >= leaderPts;
-    const ptsBehind = leaderPts - pts;
-    const status = i===0 ? `leads by ${sorted[0][1]-(sorted[1]||[,0])[1]} pts`
-                 : !canWin ? 'eliminated'
-                 : ptsBehind===0 ? 'level with leader'
-                 : `needs ${ptsBehind} pts`;
-    const statusColor = i===0?'var(--yellow)':!canWin?'var(--red)':ptsBehind<=8?'var(--green)':'var(--muted)';
-    const barPct = maxPossible ? Math.min(100, pts/maxPossible*100) : 0;
-    return `<div style="display:grid;grid-template-columns:20px 1fr auto;gap:0.5rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid var(--border)">
-      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);text-align:center">${i+1}</span>
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="font-weight:700;font-size:0.85rem;color:${COLORS[p]};cursor:pointer" onclick="showPlayerProfile('${p}')">${p}</span>
-          <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:700;color:${COLORS[p]}">${pts}</span>
-        </div>
-        <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden">
-          <div style="width:${barPct}%;height:100%;background:${COLORS[p]}99;border-radius:2px"></div>
-        </div>
-      </div>
-      <span style="font-family:var(--font-mono);font-size:0.6rem;color:${statusColor};white-space:nowrap;text-align:right">${status}</span>
-    </div>`;
-  }).join('');
-
-  document.getElementById('projection-list').innerHTML =
-    `<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem">${remaining} matches left · max ${remaining*5} pts to earn</div>` + rows;
-}
 
 // ══ HEAD TO HEAD ══
 function initH2H() {
@@ -2086,7 +1889,7 @@ function parseUpdate() {
     if (ei >= 0) { matchData[ei] = newM; status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} updated (${Object.keys(scores).length} scores)`; }
     else { matchData.push(newM); matchData.sort((a,b)=>a.num-b.num); status.className='parse-status parse-ok'; status.textContent=`✓ Match ${matchNum} added! (${Object.keys(scores).length} scores)`; }
 
-    charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
+    charts.progress=null; charts.avg=null;
     saveToFirebase();
     renderAll();
     document.getElementById('update-input').value='';
@@ -2149,7 +1952,7 @@ function applyRemoteData(matches, remoteTs) {
       localStorage.setItem(LS_KEY, JSON.stringify(matchData));
       localStorage.setItem(LS_TS_KEY, String(remoteTs || Date.now()));
     } catch(e) {}
-    charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
+    charts.progress=null; charts.avg=null;
     renderAll();
   }
   return changed;
@@ -2330,7 +2133,7 @@ function saveEditMatch(matchNum) {
     const v = document.getElementById(`edit-score-${p}`).value;
     if (v !== '') m.scores[p] = parseInt(v);
   });
-  charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
+  charts.progress=null; charts.avg=null;
   saveToFirebase();
   renderAll();
   closeEditModal();
