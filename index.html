@@ -2121,17 +2121,32 @@ function setSyncStatus(state) {
   el.textContent = text; el.style.color = color;
 }
 
-function applyRemoteData(matches) {
+const LS_TS_KEY = 'ipl2026_updatedAt';
+
+function applyRemoteData(matches, remoteTs) {
   if (!matches || !matches.length) return false;
-  // Merge: prefer whichever source has more matches; never lose data
+  const localTs = parseInt(localStorage.getItem(LS_TS_KEY) || '0');
+  // If local data is newer than Firebase, push local → Firebase instead of overwriting
+  if (localTs > (remoteTs || 0)) {
+    console.log('Local data is newer — pushing to Firebase');
+    docRef.set({ matches: matchData, updatedAt: localTs }).catch(()=>{});
+    return false;
+  }
+  // Firebase is newer: update existing matches + add new ones
   const merged = [...matchData];
-  matches.forEach(m => { if (!merged.find(hm => hm.num === m.num)) merged.push(m); });
+  matches.forEach(rm => {
+    const li = merged.findIndex(lm => lm.num === rm.num);
+    if (li === -1) merged.push(rm);
+    else merged[li] = rm;
+  });
   merged.sort((a,b) => a.num - b.num);
-  // Only re-render if data actually changed
   const changed = JSON.stringify(merged) !== JSON.stringify(matchData);
   if (changed) {
     matchData.length = 0; merged.forEach(m => matchData.push(m));
-    try { localStorage.setItem(LS_KEY, JSON.stringify(matchData)); } catch(e) {}
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(matchData));
+      localStorage.setItem(LS_TS_KEY, String(remoteTs || Date.now()));
+    } catch(e) {}
     charts.progress=null; charts.avg=null; charts.gap=null; charts.dist=null;
     renderAll();
   }
@@ -2141,8 +2156,9 @@ function applyRemoteData(matches) {
 async function saveToFirebase() {
   if (!docRef) { saveToLocalStorage(); return; }
   try {
-    await docRef.set({ matches: matchData, updatedAt: Date.now() });
-    saveToLocalStorage();
+    const ts = Date.now();
+    await docRef.set({ matches: matchData, updatedAt: ts });
+    saveToLocalStorage(ts);
     setSyncStatus('live');
   } catch(e) {
     console.warn('Firebase save failed:', e);
@@ -2151,8 +2167,11 @@ async function saveToFirebase() {
   }
 }
 
-function saveToLocalStorage() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(matchData)); } catch(e) {}
+function saveToLocalStorage(ts) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(matchData));
+    localStorage.setItem(LS_TS_KEY, String(ts || Date.now()));
+  } catch(e) {}
 }
 
 // Keep old name working (called from Reset button)
@@ -2168,10 +2187,12 @@ function initFirebase() {
     // Real-time listener — fires instantly on any device's update
     docRef.onSnapshot(snap => {
       if (snap.exists) {
-        applyRemoteData(snap.data().matches || []);
+        applyRemoteData(snap.data().matches || [], snap.data().updatedAt || 0);
       } else {
-        // First ever load — seed Firebase with current hardcoded data
-        docRef.set({ matches: matchData, updatedAt: Date.now() }).catch(()=>{});
+        // First ever load — seed Firebase with current local data
+        const ts = Date.now();
+        docRef.set({ matches: matchData, updatedAt: ts }).catch(()=>{});
+        saveToLocalStorage(ts);
       }
       setSyncStatus('live');
     }, err => {
@@ -2515,6 +2536,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const stored = JSON.parse(cached);
       if (stored.length >= matchData.length) {
         matchData.length = 0; stored.forEach(m => matchData.push(m));
+        // If no timestamp yet, stamp now so this local data isn't overwritten by stale Firebase
+        if (!localStorage.getItem(LS_TS_KEY)) {
+          localStorage.setItem(LS_TS_KEY, String(Date.now()));
+        }
       }
     }
   } catch(e) {}
