@@ -434,22 +434,47 @@ select:focus{border-color:var(--accent);}
       </div>
     </div>
 
+    <!-- Row 1: Performance overview -->
     <div class="grid-2" style="margin-bottom:1rem;">
 
-      <!-- Crowd IQ -->
+      <!-- Match difficulty heatmap -->
       <div class="card">
-        <div class="card-title">🧠 Crowd Wisdom — When Majority Picked</div>
-        <div id="crowd-iq-list"></div>
+        <div class="card-title">🌡️ Match Difficulty Heatmap</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Each cell = a player's result. Green = points gained, red = -1.</div>
+        <div style="overflow-x:auto;">
+          <div id="heatmap-container"></div>
+        </div>
       </div>
 
-      <!-- Contrarian heroes -->
+      <!-- Pick Anatomy -->
       <div class="card">
-        <div class="card-title">⚡ Contrarian Heroes — Bucked the Crowd & Won</div>
-        <div id="contrarian-list"></div>
+        <div class="card-title">🧬 Pick Anatomy — Where Points Come From</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Break down of +5 / +4 / +3 / 0 / -1 matches per player</div>
+        <div id="pick-anatomy-list"></div>
       </div>
 
     </div>
 
+    <!-- Row 2: Individual skill breakdown -->
+    <div class="grid-2" style="margin-bottom:1rem;">
+
+      <!-- Bat & Bowl Mastery -->
+      <div class="card">
+        <div class="card-title">🎯 Bat & Bowl Mastery</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Ranked by combined bat + bowl accuracy</div>
+        <div id="bat-bowl-mastery-list"></div>
+      </div>
+
+      <!-- Comeback Rate -->
+      <div class="card">
+        <div class="card-title">⚡ Bounce-Back Rate — After a -1</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Avg score on the match immediately after losing</div>
+        <div id="comeback-list"></div>
+      </div>
+
+    </div>
+
+    <!-- Row 3: Patterns -->
     <div class="grid-2" style="margin-bottom:1rem;">
 
       <!-- Peak streaks -->
@@ -473,58 +498,30 @@ select:focus{border-color:var(--accent);}
 
     </div>
 
-    <div class="grid-2" style="margin-bottom:1rem;">
-
-      <!-- Match difficulty heatmap -->
+    <!-- Row 4: Team strategy (full width) -->
+    <div style="margin-bottom:1rem;">
       <div class="card">
-        <div class="card-title">🌡️ Match Difficulty Heatmap</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Each cell = a player's result. Green = points gained, red = -1.</div>
-        <div style="overflow-x:auto;">
-          <div id="heatmap-container"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="grid-2" style="margin-bottom:1rem;">
-
-      <!-- Pick Anatomy -->
-      <div class="card">
-        <div class="card-title">🧬 Pick Anatomy — Where Points Come From</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Break down of +5 / +4 / +3 / 0 / -1 matches per player</div>
-        <div id="pick-anatomy-list"></div>
-      </div>
-
-      <!-- Bat & Bowl Mastery -->
-      <div class="card">
-        <div class="card-title">🎯 Bat & Bowl Mastery</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Ranked by combined bat + bowl accuracy</div>
-        <div id="bat-bowl-mastery-list"></div>
-      </div>
-
-    </div>
-
-    <div class="grid-2" style="margin-bottom:1rem;">
-
-      <!-- Comeback Rate -->
-      <div class="card">
-        <div class="card-title">⚡ Bounce-Back Rate — After a -1</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Avg score on the match immediately after losing</div>
-        <div id="comeback-list"></div>
-      </div>
-
-      <!-- Team P&L -->
-      <div class="card" style="grid-column:1/-1">
         <div class="card-title">📊 Team P&L — Points Earned &amp; Lost by Team Pick</div>
         <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.85rem;">Select a player to see which teams made them money and which cost them</div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem" id="tpl-pills">
-          <!-- populated by JS -->
-        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem" id="tpl-pills"></div>
         <div id="team-pl-body"></div>
+      </div>
+    </div>
+
+    <!-- Row 5: Group dynamics -->
+    <div class="grid-2" style="margin-bottom:1rem;">
+
+      <div class="card">
+        <div class="card-title">🧠 Crowd Wisdom — When Majority Picked</div>
+        <div id="crowd-iq-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Contrarian Heroes — Bucked the Crowd & Won</div>
+        <div id="contrarian-list"></div>
       </div>
 
     </div>
-
 
   </div><!-- end insights section -->
 
