@@ -213,6 +213,23 @@ button:active{transform:scale(0.97);}
 .bw-bar-inner { height:100%; border-radius:3px; }
 .bw-val { min-width:22px; text-align:right; }
 
+/* ── MOBILE INSIGHTS ── */
+@media(max-width:639px) {
+  /* Crowd row: wrap team name onto its own line */
+  .crowd-row { flex-wrap:wrap; row-gap:0.15rem; }
+  .crowd-teams { flex-basis:100%; order:-1; margin-bottom:0; }
+  .crowd-pct { flex:1; min-width:auto; font-size:0.6rem; }
+
+  /* Peak streaks header columns */
+  .streak-long-name { min-width:60px; }
+
+  /* Duo bar: hide narrow bar on mobile, keep % */
+  .duo-bar-wrap { display:none; }
+
+  /* Pick anatomy: hide count text, bar is enough */
+  .anatomy-counts { display:none; }
+}
+
 /* ── BAR CHART RACE ── */
 .race-overlay { display:none; position:fixed; inset:0; z-index:400; background:#080a0f; flex-direction:column; }
 .race-overlay.open { display:flex; }
@@ -1256,7 +1273,7 @@ function renderPickAnatomy() {
     return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid var(--border)">
       <span style="min-width:64px;font-size:0.8rem;font-weight:700;color:${COLORS[p]}">${p}</span>
       <div style="flex:1;height:14px;border-radius:3px;overflow:hidden;display:flex">${barHTML}</div>
-      <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);min-width:90px;text-align:right">${c5}×+5 ${c4}×+4 ${c3}×+3</span>
+      <span class="anatomy-counts" style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);min-width:90px;text-align:right">${c5}×+5 ${c4}×+4 ${c3}×+3</span>
     </div>`;
   }).join('');
 
@@ -1279,7 +1296,7 @@ function renderBatBowlMastery() {
         <span style="font-weight:700;color:${COLORS[p]};font-size:0.85rem">${p}</span>
         <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">avg ${combined}%</span>
       </div>
-      <div style="display:flex;gap:0.6rem;font-family:var(--font-mono);font-size:0.62rem">
+      <div style="display:flex;flex-wrap:wrap;gap:0.25rem 0.75rem;font-family:var(--font-mono);font-size:0.62rem">
         <span>🏏 Bat: <span style="color:${batCol}">${s.batCorrect}/${s.batTotal} (${s.batRate.toFixed(0)}%)</span></span>
         <span>🎳 Bowl: <span style="color:${bowlCol}">${s.bowlCorrect}/${s.bowlTotal} (${s.bowlRate.toFixed(0)}%)</span></span>
       </div>
@@ -1653,7 +1670,7 @@ function renderTeamPL(player) {
     const isPos = r.net >= 0;
     const col = r.net > 0 ? 'var(--green)' : r.net < 0 ? 'var(--red)' : 'var(--muted)';
     const winRate = r.picked ? Math.round(r.won/r.picked*100) : 0;
-    return `<div style="display:grid;grid-template-columns:80px 36px 36px 36px 1fr 44px;gap:0.4rem;align-items:center;padding:0.45rem 0;border-bottom:1px solid var(--border)">
+    return `<div style="display:grid;grid-template-columns:80px 36px 28px 28px 1fr 44px;gap:0.4rem;align-items:center;padding:0.45rem 0;border-bottom:1px solid var(--border)">
       <span style="font-family:var(--font-mono);font-size:0.72rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</span>
       <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);text-align:center">${r.picked}×</span>
       <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--green);text-align:center">${r.won}W</span>
@@ -1686,10 +1703,14 @@ function renderTeamPL(player) {
         <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">across all picks</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:80px 36px 36px 36px 1fr 44px;gap:0.4rem;padding:0.3rem 0;border-bottom:1px solid var(--border2);font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em">
-      <span>Team</span><span style="text-align:center">Picks</span><span style="text-align:center">W</span><span style="text-align:center">L</span><span></span><span style="text-align:right">Net</span>
-    </div>
-    ${tableRows}`;
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div style="min-width:280px">
+        <div style="display:grid;grid-template-columns:80px 36px 28px 28px 1fr 44px;gap:0.4rem;padding:0.3rem 0;border-bottom:1px solid var(--border2);font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em">
+          <span>Team</span><span style="text-align:center">Picks</span><span style="text-align:center">W</span><span style="text-align:center">L</span><span></span><span style="text-align:right">Net</span>
+        </div>
+        ${tableRows}
+      </div>
+    </div>`;
 }
 
 // ══════════════════════════════════════════════
