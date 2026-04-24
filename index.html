@@ -524,11 +524,14 @@ select:focus{border-color:var(--accent);}
         <div id="comeback-list"></div>
       </div>
 
-      <!-- Most picked teams -->
-      <div class="card">
-        <div class="card-title">💙 Team Favourites</div>
-        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Each player's most-picked team this season</div>
-        <div id="team-fav-list"></div>
+      <!-- Team P&L -->
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-title">📊 Team P&L — Points Earned &amp; Lost by Team Pick</div>
+        <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-bottom:0.85rem;">Select a player to see which teams made them money and which cost them</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem" id="tpl-pills">
+          <!-- populated by JS -->
+        </div>
+        <div id="team-pl-body"></div>
       </div>
 
     </div>
@@ -1004,6 +1007,8 @@ function renderInsightsStatic() {
   renderBatBowlMastery();
   renderComebackRate();
   renderTeamFavourites();
+  renderTeamPL(PLAYERS[0]);
+  buildTeamPLPills();
 }
 
 function renderInsightsCharts() {
@@ -1798,6 +1803,91 @@ function showPlayerProfile(p) {
 function closeProfile() {
   document.getElementById('profile-modal').classList.remove('open');
   document.body.style.overflow='';
+}
+
+// ══════════════════════════════════════════════
+// TEAM P&L
+// ══════════════════════════════════════════════
+function getTeamPL(player) {
+  const pl = {};
+  matchData.forEach(m => {
+    if (m.winner === 'Abandoned') return;
+    const pick = (m.picks[player]||{}).team||''; if (!pick) return;
+    const key = pick.toUpperCase();
+    if (!pl[key]) pl[key] = { name: pick, picked:0, won:0, lost:0, net:0, matches:[] };
+    const w = m.winner.toUpperCase();
+    const correct = (key===w||w.includes(key)||key.includes(w));
+    pl[key].picked++;
+    if (correct) { pl[key].won++; pl[key].net += 3; pl[key].matches.push({num:m.num,teams:m.teams,result:'+3'}); }
+    else          { pl[key].lost++; pl[key].net -= 1; pl[key].matches.push({num:m.num,teams:m.teams,result:'-1'}); }
+  });
+  return pl;
+}
+
+function buildTeamPLPills() {
+  const s = getFinalStandings();
+  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  document.getElementById('tpl-pills').innerHTML = sorted.map((p,i) =>
+    `<span class="pill ${i===0?'active':''}" style="--pc:${COLORS[p]}" onclick="selectTeamPLPlayer('${p}',this)">${p}</span>`
+  ).join('');
+}
+
+function selectTeamPLPlayer(p, el) {
+  document.querySelectorAll('#tpl-pills .pill').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  renderTeamPL(p);
+}
+
+function renderTeamPL(player) {
+  const pl = getTeamPL(player);
+  const rows = Object.values(pl).sort((a,b) => b.net - a.net);
+  if (!rows.length) { document.getElementById('team-pl-body').innerHTML='<p style="color:var(--muted);font-size:0.78rem">No data</p>'; return; }
+
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.net)), 1);
+  const totalNet = rows.reduce((s,r)=>s+r.net, 0);
+
+  const tableRows = rows.map(r => {
+    const pct = Math.abs(r.net) / maxAbs * 100;
+    const isPos = r.net >= 0;
+    const col = r.net > 0 ? 'var(--green)' : r.net < 0 ? 'var(--red)' : 'var(--muted)';
+    const winRate = r.picked ? Math.round(r.won/r.picked*100) : 0;
+    return `<div style="display:grid;grid-template-columns:80px 36px 36px 36px 1fr 44px;gap:0.4rem;align-items:center;padding:0.45rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--font-mono);font-size:0.72rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</span>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);text-align:center">${r.picked}×</span>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--green);text-align:center">${r.won}W</span>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--red);text-align:center">${r.lost}L</span>
+      <div style="position:relative;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden">
+        <div style="position:absolute;${isPos?'left:0':'right:0'};width:${pct}%;height:100%;background:${col};border-radius:4px"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.78rem;font-weight:700;color:${col};text-align:right">${r.net>0?'+':''}${r.net}</span>
+    </div>`;
+  }).join('');
+
+  const netCol = totalNet > 0 ? 'var(--green)' : totalNet < 0 ? 'var(--red)' : 'var(--muted)';
+  const best = rows[0], worst = rows[rows.length-1];
+
+  document.getElementById('team-pl-body').innerHTML = `
+    <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px;background:var(--surface2);border-radius:8px;padding:0.75rem 1rem;border:1px solid rgba(52,211,153,0.2)">
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:0.2rem">BEST TEAM</div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--green)">${best.name}</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--green)">+${best.net > 0 ? best.net : 0} pts · ${best.won}/${best.picked} wins</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:var(--surface2);border-radius:8px;padding:0.75rem 1rem;border:1px solid rgba(248,113,113,0.2)">
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:0.2rem">WORST TEAM</div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--red)">${worst.name}</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--red)">${worst.net} pts · ${worst.won}/${worst.picked} wins</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:var(--surface2);border-radius:8px;padding:0.75rem 1rem">
+        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-bottom:0.2rem">NET FROM TEAMS</div>
+        <div style="font-size:0.95rem;font-weight:800;color:${netCol}">${totalNet>0?'+':''}${totalNet} pts</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">across all picks</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:80px 36px 36px 36px 1fr 44px;gap:0.4rem;padding:0.3rem 0;border-bottom:1px solid var(--border2);font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em">
+      <span>Team</span><span style="text-align:center">Picks</span><span style="text-align:center">W</span><span style="text-align:center">L</span><span></span><span style="text-align:right">Net</span>
+    </div>
+    ${tableRows}`;
 }
 
 // ══════════════════════════════════════════════
