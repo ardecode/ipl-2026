@@ -1891,7 +1891,7 @@ function parseUpdate() {
 
     // ── Result fields (flexible separators and casing)
     const winner  = (raw.match(/Winner\s*[-–:]\s*([^\n,]+)/i)||[])[1]?.trim()||'';
-    const batsman = (raw.match(/Bat(?:sman|ter)?\s*[-–:]\s*([^\n,]+)/i)||[])[1]?.trim()||'';
+    const batsman = (raw.match(/Bat\w*\s*[-–:]\s*([^\n,]+)/i)||[])[1]?.trim()||'';
     const bowler  = (raw.match(/Bow(?:ler)?\s*[-–:]\s*([^\n,]+)/i)||[])[1]?.trim()||'';
 
     // ── Player picks: handle /, |, –, - as separators
