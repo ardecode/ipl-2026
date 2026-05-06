@@ -735,3 +735,670 @@ Vignan +3
 Yogi +3
 
 
+
+
+🏏 Match 47 MI vs LSG
+
+Abhijith - MI/Surya/Raghu Sharma
+Akhil - LSG/Tilak/Mohsin
+Arijit - MI
+Ashish - LSG/Marsh/Corbin
+Jay - MI
+Mythy - MI
+Rahul - MI/Sky/Ghazanfar
+Rakesh - MI/Jacks/Boult
+Vignan - MI/Rohit/Ghazanfar
+Yogi - MI/Naman/Mohsin
+
+Winner - MI
+Batsman - Rohit
+Bowler - Corbin
+
+Abhijith +3
+Akhil -1
+Arijit +3
+Ashish 0
+Jay +3
+Mythy +3
+Rahul +3
+Rakesh +3
+Vignan +4
+Yogi +3
+
+
+🏏 Match 48 DC vs CSK
+
+Abhijith - CSK/Ruthuraj/Ngidi
+Akhil - DC/Karun/Ngidi
+Arijit - CSK
+Ashish - DC/Rahul/Nattu
+Jay - CSK/Samson/Starc
+Mythy - CSK/Samson/Anshul
+Rahul - CSK/Rahul/Akeal
+Rakesh - DC/Nissanka/Starc
+Vignan - CSK/Sanju/Ngidi
+Yogi - DC/Sanju/Anshul
+
+Winner - CSK
+Batsman - Sanju
+Bowler - Noor
+
+Abhijith +3
+Akhil -1
+Arijit +3
+Ashish -1
+Jay +4
+Mythy +4
+Rahul +3
+Rakesh -1
+Vignan +4
+Yogi 0
+
+
+🏏 Match 26 RCB vs DC
+
+Abhijith - RCB/Kohli/
+Akhil - RCB/Rahul/Krunal
+Arijit - RCB/Rajat/Suyash
+Ashish - RCB/Salt/Bhuvi
+Jay - RCB/Salt/Bhuvi
+Mythy - DC/Salt/Kuldeep
+Rahul - RCB/Rajat/Krunal
+Rakesh - RCB/Rahul/Krunal
+Vignan - RCB/salt/bhuvi
+Yogi - DC
+
+Winner - DC
+Batsman - Salt
+Bowler - Bhuvi
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish 1
+Jay 1
+Mythy +4
+Rahul -1
+Rakesh -1
+Vignan 1
+Yogi -1
+
+
+🏏 Match 27 SRH vs CSK
+
+Abhijith - SRH/Gaikwad/Shakib
+Akhil - SRH/Head/Sakib
+Arijit - CSK/Sanju/praful
+Ashish - SRH/Abhishek/Praful
+Jay - SRH
+Mythy - CSK/Sanju/Noor
+Rahul - SRH/Ishan/Praful
+Rakesh - SRH/Ishan/Sakib
+Vignan - SRH
+Yogi - SRH/Abhishek/Dilshan
+
+Winner - SRH
+Batsman - Puli
+Bowler - Eshan Malinga
+
+Abhijith +3
+Akhil +3
+Arijit -1
+Ashish +4
+Jay +3
+Mythy -1
+Rahul +3
+Rakesh +3
+Vignan +3
+Yogi +4
+
+
+🏏 Match 28 KKR vs RR
+
+Abhijith - RR/Jaiswal/Sandeep
+Akhil - RR/Vaibhav/Sandeep
+Arijit - RR/Vaibhav/Bishnoi
+Ashish - RR/Vaibhav/Bishnoi
+Jay - RR/Vaibhav/Bishnoi
+Mythy - RR/Jaiswal/Archer
+Rahul - RR/Jaiswal/Bishnoi
+Rakesh - RR/Jaiswal/Archer
+Vignan - KKR
+Yogi - KKR
+
+Winner - KKR
+Batsman - Rinku Singh
+Bowler - Varun
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish -1
+Jay -1
+Mythy -1
+Rahul -1
+Rakesh -1
+Vignan +3
+Yogi +3
+
+
+🏏 Match 29 PBKS vs LSG
+
+Abhijith - PBKS/Shreyas/Shami
+Akhil - PBKS/Cooper/Jansen
+Arijit - PBKS/Shreyas/Shami
+Ashish - PBKS/Shreyas/Chahal
+Jay - PBKS/Priyansh/Vyshak
+Mythy - pbks/Prabhsimran/Arshdeep
+Rahul - PBKS/Pooran/Vyshak
+Rakesh - PBKS/Cooper/Shasank singh
+Vignan - LSG/prabhsimran/shami
+Yogi - PBKS/Priyansh/Shami
+
+Winner - PBKS
+Batsman - Priyansh
+Bowler - Prince
+
+Abhijith +3
+Akhil +3
+Arijit +3
+Ashish +3
+Jay +4
+Mythy +3
+Rahul +3
+Rakesh +3
+Vignan -1
+Yogi +4
+
+
+🏏 Match 30 GT vs MI
+
+Abhijith - GT/Gill/Siraj
+Akhil - MI/Quinton/Ghazanfar
+Arijit - MI/Butler/Prasidh
+Ashish - GT/Sudharshan/Prasidh
+Jay - GT
+Mythy - MI/Danish/Santner
+Rahul - MI/Sky/Bumrah
+Rakesh - GT/Gill/Siraj
+Vignan - GT/Sai/prasidh
+Yogi - GT/Buttler/Siraj
+
+Winner - MI
+Batsman - Tilak
+Bowler - Ashwani Kumar
+
+Abhijith -1
+Akhil +3
+Arijit +3
+Ashish -1
+Jay -1
+Mythy +3
+Rahul +3
+Rakesh -1
+Vignan -1
+Yogi -1
+
+
+🏏 Match 31 SRH vs DC
+
+Abhijith - SRH/Klassen/Shakib
+Akhil - SRH/Head/Eshan
+Arijit - SRH/Rizvi/Natarajan
+Ashish - SRH/Ishan/Harsh
+Jay - DC
+Mythy - DC/head/Natrajan
+Rahul - SRH/Ishan/Ngidi
+Rakesh - SRH/Ishan/Sakib
+Vignan - SRH/Abhishek/Lungi
+Yogi - SRH/Abhishek/Nattu
+
+Winner - SRH
+Batsman - Abhishek
+Bowler - Eshan
+
+Abhijith +3
+Akhil +4
+Arijit +3
+Ashish +3
+Jay -1
+Mythy -1
+Rahul +3
+Rakesh +3
+Vignan +4
+Yogi +4
+
+
+🏏 Match 32 LSG vs RR
+
+Abhijith - RR/Jaiswal/Bishnoi
+Akhil - RR/Jaiswal/Brijesh
+Arijit - RR/Jurel/Burger
+Ashish - RR/Vaibhav/Sandeep
+Jay - RR/Vaibhav/Shami
+Mythy - RR/Jaiswal/Prince
+Rahul - RR/Jurel/Bishnoi
+Rakesh - RR/Vaibhav/Shami
+Vignan - LSG/Vaibhav/Archer
+Yogi - RR/Vaibhav/Shami
+
+Winner - RR
+Batsman - Marsh
+Bowler - Archer
+
+Abhijith +3
+Akhil +3
+Arijit +3
+Ashish +3
+Jay +3
+Mythy +3
+Rahul +3
+Rakesh +3
+Vignan 0
+Yogi +3
+
+
+🏏 Match 33 MI vs CSK
+
+Abhijith - CSK
+Akhil - MI/De Kock/Ashwani
+Arijit - MI/Sanju/AM Ghazanfar
+Ashish - MI/Naman/Kamboj
+Jay - Mythy-MI/Sanju/Overton
+Mythy - MI/Sanju/Overton
+Rahul - MI/Sanju/Ashwani
+Rakesh - MI/SKY/Bumrah
+Vignan - MI
+Yogi - MI/De Kock/Overton
+
+Winner - CSK
+Batsman - Sanju
+Bowler - Akeal
+
+Abhijith +3
+Akhil -1
+Arijit 0
+Ashish -1
+Jay -1
+Mythy 0
+Rahul 0
+Rakesh -1
+Vignan -1
+Yogi -1
+
+
+🏏 Match 34 RCB vs GT
+
+Abhijith - RCB/Kohli/Krunal
+Akhil - GT/Buttler/Rabada
+Arijit - RCB/Kohli/Bhuvi
+Ashish - GT/Buttler/Rabada
+Jay - GT/Kohli/Hazelwood
+Mythy - RCB/Jacob/Hazelwood
+Rahul - RCB/DDP/Josh
+Rakesh - GT/Gill/Rashid
+Vignan - RCB/salt/bhuvi
+Yogi - RCB/Gill/Rasikh
+
+Winner - RCB
+Batsman - Sai
+Bowler - Rashid
+
+Abhijith +3
+Akhil -1
+Arijit +3
+Ashish -1
+Jay -1
+Mythy +3
+Rahul +3
+Rakesh 0
+Vignan +3
+Yogi +3
+
+
+🏏 Match 35 DC vs PBKS
+
+Abhijith - DC/Rana/Natarajan
+Akhil - DC/Prabhsimran/Ngidi
+Arijit - PBKS/Arya/Arshdeep
+Ashish - PBKS/Shreyas/Chahal
+Jay - DC/Rahul/Ngidi
+Mythy - DC/Rahul/ngidi
+Rahul - PBKS/Rahul/Mukesh
+Rakesh - PBKS/Shreyas/Arshdep
+Vignan - PBKS/prabhsimran/Ngidi
+Yogi - PBKS/Arya/Ngidi
+
+Winner - PBKS
+Batsman - Rahul
+Bowler - Kuldeep
+
+Abhijith -1
+Akhil -1
+Arijit +3
+Ashish +3
+Jay 0
+Mythy 0
+Rahul +4
+Rakesh +3
+Vignan +3
+Yogi +3
+
+
+🏏 Match 36 RR vs SRH
+
+Abhijith - SRH
+Akhil - SRH/Abhishek/Sakib
+Arijit - RR/Vaibhav/Archer
+Ashish - RR/Vaibhav/Archer
+Jay - RR/Jaiswal/Bushnoi
+Mythy - RR/Ishan/Eshan
+Rahul - SRH/Klassen/Eshan
+Rakesh - SRH/Head/Shakib
+Vignan - SRH/jaiswal/burger
+Yogi - SRH/Jaiswal/Eeshan
+
+Winner - SRH
+Batsman - Vaibhav
+Bowler - Archer
+
+Abhijith +3
+Akhil +3
+Arijit 1
+Ashish 1
+Jay -1
+Mythy -1
+Rahul +3
+Rakesh +3
+Vignan +3
+Yogi +3
+
+
+🏏 Match 37 CSK vs GT
+
+Abhijith - CSK/Samson/Choudhary
+Akhil - CSK/Samson/Akeal
+Arijit - CSK/Gill/Anshul
+Ashish - CSK/Samson/Noor
+Jay - CSK/Ruturaj/Noor
+Mythy - CSK/Gill/Anshul
+Rahul - CSK/Butler/Noor
+Rakesh - CSK/Gill/Anshul
+Vignan - GT/sai/anshul
+Yogi - CSK/Samson/Noor
+
+Winner - GT
+Batsman - sai
+Bowler - Rabada
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish -1
+Jay -1
+Mythy -1
+Rahul -1
+Rakesh -1
+Vignan +4
+Yogi -1
+
+
+🏏 Match 38 LSG vs KKR
+
+Abhijith - KKR/Tim/Narine
+Akhil - KKR/Tim Seifert/Karthik Tyagi
+Arijit - LSG/Marsh/Shami
+Ashish - LSG/Marsh/Shami
+Jay - KKR/Raghuvanshi/Vaibhav
+Mythy - KKR/Raghuvanshi/Varun
+Rahul - KKR/Raghuvanshi/Prince
+Rakesh - LSG/Marsh/Shami
+Vignan - kkr/Green/Mohsin
+Yogi - KKR/Marsh/Varun
+
+Winner - KKR
+Batsman - Rinku
+Bowler - Mohsin
+
+Abhijith +3
+Akhil +3
+Arijit -1
+Ashish -1
+Jay +3
+Mythy +3
+Rahul +3
+Rakesh -1
+Vignan +4
+Yogi +3
+
+
+🏏 Match 39 DC vs RCB
+
+Abhijith - RCB/Kohli/Bhuvi
+Akhil - RCB/Kohli/Krunal
+Arijit - RCB/Kohli/Rasik
+Ashish - DC/Rahul/Nattu
+Jay - Mythy-RCB/rahul/kuldeep
+Mythy - RCB/rahul/kuldeep
+Rahul - DC/Kohli/Nattu
+Rakesh - RCB/Devdutt/Hazlewood
+Vignan - RCB
+Yogi - DC/Kohli/Kuldeep
+
+Winner - RCB
+Batsman - Devdutt
+Bowler - Hazelwood
+
+Abhijith +3
+Akhil +3
+Arijit +3
+Ashish -1
+Jay -1
+Mythy +3
+Rahul -1
+Rakesh +5
+Vignan +3
+Yogi -1
+
+
+🏏 Match 40 PBKS vs RR
+
+Abhijith - RR/Vaibhav/Bishnoi
+Akhil - PBKS/Prabhsimran/Jansen
+Arijit - RR/Cooper/Archer
+Ashish - RR/Vaibhav/Archer
+Jay - RR
+Mythy - pbks/Shreyas/Jansen
+Rahul - RR/Jaiswal/Yash Raj
+Rakesh - PBKS/Cooper/Arshadeep
+Vignan - RR
+Yogi - PBKS/Priyansh/Burger
+
+Winner - RR
+Batsman - Stoinis
+Bowler - Chahal
+
+Abhijith +3
+Akhil -1
+Arijit +3
+Ashish +3
+Jay +3
+Mythy -1
+Rahul +3
+Rakesh -1
+Vignan +3
+Yogi -1
+
+
+🏏 Match 41 MI vs SRH
+
+Abhijith - SRH/Head/Shakib
+Akhil - SRH/Klaasen/Eshan
+Arijit - MI/Abhishek/Malinga
+Ashish - SRH/Ishan/Harsh
+Jay - MI/Abhishek/Pat
+Mythy - MI/Jacks/Ashwani
+Rahul - SRH/Klaasen/Eshan
+Rakesh - SRH/Head/Sakib
+Vignan - SRH/Abhishek/Pat
+Yogi - SRH/Ishan/Eshan
+
+Winner - SRH
+Batsman - Rickelton
+Bowler - Am Ghazanfar
+
+Abhijith +3
+Akhil +3
+Arijit -1
+Ashish +3
+Jay -1
+Mythy -1
+Rahul +3
+Rakesh +3
+Vignan +3
+Yogi +3
+
+
+🏏 Match 42 GT vs RCB
+
+Abhijith - RCB/Sai/Bhuvi
+Akhil - RCB/Butler/Bhuvi
+Arijit - RCB/Patidhar/Hazlewood
+Ashish - GT/Kohli/Rashid
+Jay - RCB
+Mythy - RCB/Gill/Holder
+Rahul - RCB/Patidar/Rabada
+Rakesh - RCB/Devdutt/bhuvi
+Vignan - RCB/patidar/bhuvi
+Yogi - RCB/Kohli/Rabada
+
+Winner - GT
+Batsman - Gill
+Bowler - Arshad
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish +3
+Jay -1
+Mythy 0
+Rahul -1
+Rakesh -1
+Vignan -1
+Yogi -1
+
+
+🏏 Match 43 RR vs DC
+
+Abhijith - DC
+Akhil - RR/Jaiswal/Archer
+Arijit - RR/Rahul/Starc
+Ashish - RR/Vaibhav/Starc
+Jay - RR/Vaibhav/archer
+Mythy - DC/nissanka/Kuldeep
+Rahul - RR/Vaibhav/Starc
+Rakesh - RR/Vaibhav/archer
+Vignan - RR/vaibhav/archer
+Yogi - RR/Jaiswal/Burger
+
+Winner - DC
+Batsman - Riyan
+Bowler - Starc
+
+Abhijith +3
+Akhil -1
+Arijit 0
+Ashish 0
+Jay -1
+Mythy +3
+Rahul 0
+Rakesh -1
+Vignan -1
+Yogi -1
+
+
+🏏 Match 44 CSK vs MI
+
+Abhijith - CSK/Sanju/Akeal
+Akhil - MI/Suryakumar/Bumrah
+Arijit - CSK/Jacks/Noor
+Ashish - MI/Jacks/Raghu Sharma
+Jay - MI
+Mythy - CSK/Jacks/Noor
+Rahul - CSK
+Rakesh - Vignan-MI/sanju/Boult
+Vignan - MI/sanju/Boult
+Yogi - CSK/Ryan/Bumrah
+
+Winner - CSK
+Batsman - Ruturaj
+Bowler - Anshul
+
+Abhijith +3
+Akhil -1
+Arijit +3
+Ashish -1
+Jay -1
+Mythy +3
+Rahul +3
+Rakesh -1
+Vignan -1
+Yogi +3
+
+
+🏏 Match 45 SRH vs KKR
+
+Abhijith - SRH/Raghuvanshi/Cummins
+Akhil - SRH/Ishan/Malinga
+Arijit - SRH/Abhishek/Malinga
+Ashish -
+Jay - Mythy-KKR/Head/Malinga
+Mythy - KKR/Head/Malinga
+Rahul - SRH/Ishan/Eshan
+Rakesh - SRH/Kishan/Malinga
+Vignan - SRH/Abhishek/sakib
+Yogi - SRH/Abhishek/Cummins
+
+Winner - KKR
+Batsman - Head
+Bowler - Varun
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish -1
+Jay -1
+Mythy +4
+Rahul -1
+Rakesh -1
+Vignan -1
+Yogi -1
+
+
+🏏 Match 46 GT vs PBKS
+
+Abhijith - PBKS/Shreyas/Rabada
+Akhil - PBKS/Priyansh/Rabada
+Arijit - PBKS/Gill/Vyshak
+Ashish - GT/Gill/Siraj
+Jay - pbks
+Mythy - pbks/Prabsimran/Vyshak
+Rahul - PBKS/Gill/Arshdeep
+Rakesh - GT/Sudharsan/Hazlewood
+Vignan - pbks/sai/arshad
+Yogi - PBKS/Priyansh/Rabada
+
+Winner - GT
+Batsman - Suryansh
+Bowler - Holder
+
+Abhijith -1
+Akhil -1
+Arijit -1
+Ashish +3
+Jay -1
+Mythy -1
+Rahul -1
+Rakesh +3
+Vignan -1
+Yogi -1

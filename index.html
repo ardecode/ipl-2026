@@ -572,6 +572,7 @@ select:focus{border-color:var(--accent);}
           <button class="btn-primary" onclick="parseUpdate()">Update Dashboard</button>
           <button class="btn-secondary" onclick="document.getElementById('update-input').value=''">Clear</button>
           <button class="btn-secondary" onclick="if(confirm('Reset to original hardcoded data?')){localStorage.removeItem('ipl2026_matchData');location.reload();}">Reset Data</button>
+          <button class="btn-secondary" onclick="forcePushToFirebase()" style="border-color:var(--yellow);color:var(--yellow)">⬆ Push to Firebase</button>
         </div>
         <div class="parse-status" id="parse-status"></div>
         <div id="match-summary-btn-wrap" style="display:none;margin-top:0.75rem">
@@ -1976,14 +1977,7 @@ const LS_TS_KEY = 'ipl2026_updatedAt';
 
 function applyRemoteData(matches, remoteTs) {
   if (!matches || !matches.length) return false;
-  const localTs = parseInt(localStorage.getItem(LS_TS_KEY) || '0');
-  // If local data is newer than Firebase, push local → Firebase instead of overwriting
-  if (localTs > (remoteTs || 0)) {
-    console.log('Local data is newer — pushing to Firebase');
-    docRef.set({ matches: matchData, updatedAt: localTs }).catch(()=>{});
-    return false;
-  }
-  // Firebase is newer: update existing matches + add new ones
+  // Firebase is always authoritative — apply it unconditionally
   const merged = [...matchData];
   matches.forEach(rm => {
     const li = merged.findIndex(lm => lm.num === rm.num);
@@ -2002,6 +1996,21 @@ function applyRemoteData(matches, remoteTs) {
     renderAll();
   }
   return changed;
+}
+
+async function forcePushToFirebase() {
+  if (!docRef) { alert('Not connected to Firebase.'); return; }
+  if (!confirm(`Push all ${matchData.length} matches from this browser to Firebase? This will overwrite Firebase data.`)) return;
+  try {
+    const ts = Date.now();
+    await docRef.set({ matches: matchData, updatedAt: ts });
+    localStorage.setItem(LS_KEY, JSON.stringify(matchData));
+    localStorage.setItem(LS_TS_KEY, String(ts));
+    setSyncStatus('live');
+    alert(`Done — ${matchData.length} matches pushed to Firebase.`);
+  } catch(e) {
+    alert('Push failed: ' + e.message);
+  }
 }
 
 async function saveToFirebase() {
@@ -2387,10 +2396,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const stored = JSON.parse(cached);
       if (stored.length >= matchData.length) {
         matchData.length = 0; stored.forEach(m => matchData.push(m));
-        // If no timestamp yet, stamp now so this local data isn't overwritten by stale Firebase
-        if (!localStorage.getItem(LS_TS_KEY)) {
-          localStorage.setItem(LS_TS_KEY, String(Date.now()));
-        }
       }
     }
   } catch(e) {}
