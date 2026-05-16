@@ -743,15 +743,28 @@ function getFinalStandings() {
   PLAYERS.forEach(p => { const a = cum[p]; totals[p] = a.length ? a[a.length-1] : 0; });
   return totals;
 }
+function getLossCounts(data) {
+  const src = data || matchData;
+  const losses = {};
+  PLAYERS.forEach(p => losses[p] = 0);
+  src.forEach(m => PLAYERS.forEach(p => { if ((m.scores[p] || 0) < 0) losses[p]++; }));
+  return losses;
+}
+// Tiebreaker: higher pts first; on tie, fewer losses first
+function byStandings(pts, losses) {
+  return ([a, pa], [b, pb]) => (pb - pa) || (losses[a] - losses[b]);
+}
 function getRankChanges() {
   if (matchData.length < 2) return {};
   const prevTotals = {};
   PLAYERS.forEach(p => prevTotals[p] = 0);
   matchData.slice(0, -1).forEach(m => PLAYERS.forEach(p => prevTotals[p] = (prevTotals[p]||0) + (m.scores[p]||0)));
-  const prevSorted = Object.entries(prevTotals).sort((a,b) => b[1]-a[1]);
+  const prevLosses = getLossCounts(matchData.slice(0, -1));
+  const prevSorted = Object.entries(prevTotals).sort(byStandings(prevTotals, prevLosses));
   const prevRank = {}; prevSorted.forEach(([p],i) => prevRank[p] = i+1);
   const curr = getFinalStandings();
-  const currSorted = Object.entries(curr).sort((a,b) => b[1]-a[1]);
+  const losses = getLossCounts();
+  const currSorted = Object.entries(curr).sort(byStandings(curr, losses));
   const currRank = {}; currSorted.forEach(([p],i) => currRank[p] = i+1);
   const changes = {}; PLAYERS.forEach(p => changes[p] = (prevRank[p]||0) - (currRank[p]||0));
   return changes;
@@ -796,7 +809,7 @@ function renderAll() {
 }
 
 function renderMetrics() {
-  const s=getFinalStandings(), sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const s=getFinalStandings(), sorted=Object.entries(s).sort(byStandings(s, getLossCounts()));
   const wr=getWinRates(), bestWR=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate)[0];
   const totalPreds=Object.values(wr).reduce((s,v)=>s+v.teamTotal,0);
   const avgAcc=Object.values(wr).reduce((s,v)=>s+v.teamRate,0)/PLAYERS.length;
@@ -811,7 +824,7 @@ function renderMetrics() {
 }
 
 function renderLeaderboard() {
-  const s=getFinalStandings(), sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]), max=sorted[0][1];
+  const s=getFinalStandings(), losses=getLossCounts(), sorted=Object.entries(s).sort(byStandings(s, losses)), max=sorted[0][1];
   const rc=['gold','silver','bronze'], rs=['1','2','3'];
   const changes=getRankChanges();
   document.getElementById('leaderboard').innerHTML = sorted.map(([p,pts],i)=>{
@@ -935,7 +948,7 @@ function renderAvgChart() {
 
 function renderStreaks() {
   const form=getRecentForm(8), s=getFinalStandings();
-  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sorted=Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
   document.getElementById('streaks').innerHTML = sorted.map(p=>{
     const dots=form[p].map(r=>`<div class="dot dot-${r}" title="${r==='w'?'win':r==='l'?'loss':r==='h'?'draw':'?'}"></div>`).join('');
     const wins=form[p].filter(r=>r==='w').length;
@@ -945,7 +958,7 @@ function renderStreaks() {
 }
 
 function renderMatchView() {
-  const s=getFinalStandings(), sortedP=Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const s=getFinalStandings(), sortedP=Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
   let hdr=`<thead><tr><th style="min-width:80px;position:sticky;left:0;background:var(--surface);z-index:2">Player</th><th style="min-width:44px;text-align:center">Total</th>`;
   matchData.slice().reverse().forEach(m=>{
     hdr+=`<th style="min-width:82px;text-align:center"><span style="display:block;font-size:0.6rem;color:var(--accent)">M${m.num}</span><span style="display:block;font-size:0.55rem;color:var(--muted);font-weight:400">${m.teams}</span><span style="display:block;font-size:0.55rem;color:var(--muted);cursor:pointer;margin-top:2px" onclick="showEditMatch(${m.num})" title="Edit match">✏️</span></th>`;
@@ -1099,7 +1112,7 @@ function renderContrarians() {
 // Peak win/loss streaks over entire season
 function renderPeakStreaks() {
   const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sorted = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
 
   const html = sorted.map(p => {
     const results = matchData.map(m => {
@@ -1181,7 +1194,7 @@ function renderDuos() {
 // Heatmap of all player scores per match
 function renderHeatmap() {
   const s = getFinalStandings();
-  const sortedP = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sortedP = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
 
   const cellColor = (sc) => {
     if (sc === undefined) return 'rgba(255,255,255,0.04)';
@@ -1273,7 +1286,7 @@ function renderInsightKPIs() {
 // Pick Anatomy
 function renderPickAnatomy() {
   const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sorted = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
   const played = matchData.filter(m => m.winner !== 'Abandoned');
 
   const html = sorted.map(p => {
@@ -1365,7 +1378,7 @@ function renderTeamFavourites() {
     teamCounts[p] = sorted.slice(0,2);
   });
   const s = getFinalStandings();
-  const sortedP = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sortedP = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
   const favEl = document.getElementById('team-fav-list');
   if (!favEl) return;
   favEl.innerHTML = sortedP.map(p => {
@@ -1382,7 +1395,7 @@ function renderTeamFavourites() {
 function getPlayerBadges(p) {
   const badges = [];
   const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const sorted = Object.entries(s).sort(byStandings(s, getLossCounts()));
   const played = matchData.filter(m => m.winner !== 'Abandoned');
   const scores = matchData.map(m => m.scores[p] !== undefined ? m.scores[p] : 0);
 
@@ -1513,7 +1526,7 @@ function shareStandingsCard() {
   ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(16,68,W-32,1);
 
   const s=getFinalStandings();
-  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const sorted=Object.entries(s).sort(byStandings(s, getLossCounts()));
   const maxPts=sorted[0][1];
   const medals=['🥇','🥈','🥉'];
   const rankChanges=getRankChanges();
@@ -1568,7 +1581,7 @@ function downloadImg(blob){
 // ══ PLAYER PROFILE ══
 function showPlayerProfile(p) {
   const s=getFinalStandings();
-  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const sorted=Object.entries(s).sort(byStandings(s, getLossCounts()));
   const rank=sorted.findIndex(([name])=>name===p)+1;
   const pts=s[p];
   const wr=getWinRates()[p];
@@ -1674,7 +1687,7 @@ function getTeamPL(player) {
 
 function buildTeamPLPills() {
   const s = getFinalStandings();
-  const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([p])=>p);
+  const sorted = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p])=>p);
   document.getElementById('tpl-pills').innerHTML = sorted.map((p,i) =>
     `<span class="pill ${i===0?'active':''}" style="--pc:${COLORS[p]}" onclick="selectTeamPLPlayer('${p}',this)">${p}</span>`
   ).join('');
