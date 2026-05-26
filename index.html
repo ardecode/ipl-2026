@@ -360,13 +360,29 @@ select:focus{border-color:var(--accent);}
     <div class="metric"><div class="metric-label">Avg Acc.</div><div class="metric-value orange" id="m-overall-acc">—</div><div class="metric-sub">across players</div></div>
   </div>
 
+  <!-- Season Predictions (always visible) -->
+  <div id="season-preds-outer" style="margin-bottom:1rem">
+    <div class="card card-collapsible" id="season-preds-card">
+      <div class="card-title" onclick="this.closest('.card-collapsible').classList.toggle('collapsed')">🔮 Season Predictions</div>
+      <div class="card-body">
+        <div class="table-scroll"><table class="sp-table" id="season-preds-table"></table></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ SECTION: STANDINGS ═══ -->
   <div class="tab-section active" id="sec-standings">
     <div class="grid-3">
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
           <span class="card-title" style="margin-bottom:0">🏆 Standings</span>
-          <button class="btn-secondary" style="font-size:0.7rem;padding:5px 12px;min-height:0;display:flex;align-items:center;gap:5px" onclick="shareStandingsCard()">📤 Share</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="tabs" style="margin:0">
+              <span class="tab active" id="lb-tab-match" onclick="setLbView('match')">Group Stage</span>
+              <span class="tab" id="lb-tab-season" onclick="setLbView('season')">Season</span>
+            </div>
+            <button class="btn-secondary" style="font-size:0.7rem;padding:5px 12px;min-height:0;display:flex;align-items:center;gap:5px" onclick="shareStandingsCard()">📤 Share</button>
+          </div>
         </div>
         <div id="leaderboard"></div>
       </div>
@@ -392,12 +408,6 @@ select:focus{border-color:var(--accent);}
       </div>
     </div>
 
-    <div class="card card-collapsible" id="season-preds-card" style="margin-top:1rem">
-      <div class="card-title" onclick="this.closest('.card-collapsible').classList.toggle('collapsed')">🔮 Season Predictions</div>
-      <div class="card-body">
-        <div class="table-scroll"><table class="sp-table" id="season-preds-table"></table></div>
-      </div>
-    </div>
   </div>
 
   <!-- ═══ SECTION: CHARTS ═══ -->
@@ -786,6 +796,7 @@ let matchData = [
 let charts = {};
 let selectedPlayers = new Set(PLAYERS);
 let currentNav = 'standings';
+let lbView = 'match';
 
 function navTo(section) {
   currentNav = section;
@@ -823,15 +834,20 @@ function getLossCounts(data) {
 function byStandings(pts, losses) {
   return ([a, pa], [b, pb]) => (pb - pa) || (losses[a] - losses[b]);
 }
+function getMatchOnlyStandings(data) {
+  const src = data || matchData;
+  const totals = {};
+  PLAYERS.forEach(p => totals[p] = 0);
+  src.forEach(m => PLAYERS.forEach(p => totals[p] += (m.scores[p]||0)));
+  return totals;
+}
 function getRankChanges() {
   if (matchData.length < 2) return {};
-  const prevTotals = {};
-  PLAYERS.forEach(p => prevTotals[p] = getSeasonBonus(p));
-  matchData.slice(0, -1).forEach(m => PLAYERS.forEach(p => prevTotals[p] = (prevTotals[p]||0) + (m.scores[p]||0)));
+  const prevTotals = getMatchOnlyStandings(matchData.slice(0, -1));
   const prevLosses = getLossCounts(matchData.slice(0, -1));
   const prevSorted = Object.entries(prevTotals).sort(byStandings(prevTotals, prevLosses));
   const prevRank = {}; prevSorted.forEach(([p],i) => prevRank[p] = i+1);
-  const curr = getFinalStandings();
+  const curr = getMatchOnlyStandings();
   const losses = getLossCounts();
   const currSorted = Object.entries(curr).sort(byStandings(curr, losses));
   const currRank = {}; currSorted.forEach(([p],i) => currRank[p] = i+1);
@@ -878,7 +894,7 @@ function renderAll() {
 }
 
 function renderMetrics() {
-  const s=getFinalStandings(), sorted=Object.entries(s).sort(byStandings(s, getLossCounts()));
+  const s=getMatchOnlyStandings(), sorted=Object.entries(s).sort(byStandings(s, getLossCounts()));
   const wr=getWinRates(), bestWR=Object.entries(wr).sort((a,b)=>b[1].teamRate-a[1].teamRate)[0];
   const totalPreds=Object.values(wr).reduce((s,v)=>s+v.teamTotal,0);
   const avgAcc=Object.values(wr).reduce((s,v)=>s+v.teamRate,0)/PLAYERS.length;
@@ -892,10 +908,21 @@ function renderMetrics() {
   document.getElementById('m-overall-acc').textContent=avgAcc.toFixed(1)+'%';
 }
 
+function setLbView(v) {
+  lbView = v;
+  document.getElementById('lb-tab-match').classList.toggle('active', v === 'match');
+  document.getElementById('lb-tab-season').classList.toggle('active', v === 'season');
+  renderLeaderboard();
+}
 function renderLeaderboard() {
-  const s=getFinalStandings(), losses=getLossCounts(), sorted=Object.entries(s).sort(byStandings(s, losses)), max=sorted[0][1];
+  const matchOnly = getMatchOnlyStandings();
+  const full = getFinalStandings();
+  const losses = getLossCounts();
+  const s = lbView === 'season' ? full : matchOnly;
+  const sorted = Object.entries(s).sort(byStandings(s, losses));
+  const max = sorted[0][1];
   const rc=['gold','silver','bronze'], rs=['1','2','3'];
-  const changes=getRankChanges();
+  const changes = getRankChanges();
   document.getElementById('leaderboard').innerHTML = sorted.map(([p,pts],i)=>{
     const last=matchData.length?(matchData[matchData.length-1].scores[p]||0):0;
     const pct=max?pts/max*100:0;
@@ -905,6 +932,10 @@ function renderLeaderboard() {
     const chg=changes[p]||0;
     const ac=chg>0?'arrow-up':chg<0?'arrow-down':'arrow-zero';
     const at=chg>0?`↑${chg}`:chg<0?`↓${Math.abs(chg)}`:'–';
+    const bonus = getSeasonBonus(p);
+    const bonusTag = lbView === 'season' && bonus > 0
+      ? `<span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--green);margin-left:4px">+${bonus}</span>`
+      : '';
     return `<div class="lb-row" style="grid-template-columns:24px 22px 1fr 60px auto auto">
       <span class="lb-rank ${i<3?rc[i]:''}">${i<3?rs[i]:i+1}</span>
       <span class="lb-arrow ${ac}">${at}</span>
@@ -913,7 +944,7 @@ function renderLeaderboard() {
         ${badges.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${badgesHTML(badges)}</div>`:''}
       </div>
       <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${COLORS[p]}"></div></div>
-      <span class="lb-pts">${pts}</span>
+      <span class="lb-pts">${pts}${bonusTag}</span>
       <span class="lb-delta ${dc}">${ds}</span>
     </div>`;
   }).join('');
