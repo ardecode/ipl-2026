@@ -301,6 +301,15 @@ select:focus{border-color:var(--accent);}
 .edit-field:focus{border-color:var(--accent);}
 .score-input{width:60px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:0.8rem;padding:0.4rem 0.5rem;text-align:center;outline:none;-webkit-appearance:none;appearance:none;}
 .score-input:focus{border-color:var(--accent);}
+.sp-table{width:100%;border-collapse:collapse;font-size:0.75rem;}
+.sp-table th{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:0.45rem 0.5rem;text-align:left;border-bottom:1px solid var(--border2);}
+.sp-table td{padding:0.45rem 0.5rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.sp-table tr:last-child td{border-bottom:none;}
+.sp-pill{display:inline-block;font-family:var(--font-mono);font-size:0.6rem;padding:2px 5px;border-radius:3px;margin:1px;font-weight:500;}
+.sp-pill-hit{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.3);}
+.sp-pill-miss{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
+.sp-pill-tbd{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.25);}
+.sp-bonus{font-family:var(--font-mono);font-weight:700;font-size:0.82rem;}
 </style>
 </head>
 <body>
@@ -380,6 +389,13 @@ select:focus{border-color:var(--accent);}
           <div class="picks-row" style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em"><span>Name</span><span>Picks</span><span>Wins</span><span>Win%</span></div>
           <div id="picks-bowl-list"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card card-collapsible" id="season-preds-card" style="margin-top:1rem">
+      <div class="card-title" onclick="this.closest('.card-collapsible').classList.toggle('collapsed')">🔮 Season Predictions</div>
+      <div class="card-body">
+        <div class="table-scroll"><table class="sp-table" id="season-preds-table"></table></div>
       </div>
     </div>
   </div>
@@ -717,6 +733,28 @@ select:focus{border-color:var(--accent);}
 const PLAYERS = ["Abhijith","Akhil","Arijit","Ashish","Jay","Mythy","Rahul","Rakesh","Vignan","Yogi"];
 const COLORS = {Rahul:"#38bdf8",Arijit:"#a78bfa",Mythy:"#f97316",Akhil:"#34d399",Ashish:"#fb923c",Rakesh:"#f472b6",Yogi:"#facc15",Jay:"#67e8f9",Abhijith:"#c084fc",Vignan:"#86efac"};
 
+const SEASON_ACTUAL = { top4: ['RCB','GT','SRH','RR'], last: 'LSG', winner: null };
+const SEASON_PICKS = {
+  Abhijith: { top4: ['CSK','KKR','SRH','PBKS'], winner: 'PBKS', last: 'GT' },
+  Akhil:    { top4: ['RCB','MI','SRH','PBKS'],  winner: 'SRH',  last: 'LSG' },
+  Arijit:   { top4: ['RCB','MI','GT','PBKS'],   winner: 'MI',   last: 'LSG' },
+  Ashish:   { top4: ['CSK','MI','SRH','DC'],    winner: 'MI',   last: 'KKR' },
+  Jay:      { top4: ['MI','KKR','RCB','GT'],    winner: 'MI',   last: 'RR' },
+  Mythy:    { top4: ['MI','RCB','SRH','DC'],    winner: 'SRH',  last: 'KKR' },
+  Rahul:    { top4: ['MI','GT','SRH','PBKS'],   winner: 'SRH',  last: 'KKR' },
+  Rakesh:   { top4: ['KKR','MI','SRH','RCB'],   winner: 'KKR',  last: 'LSG' },
+  Vignan:   { top4: ['SRH','MI','RCB','DC'],    winner: 'SRH',  last: 'KKR' },
+  Yogi:     { top4: ['MI','PBKS','CSK','SRH'],  winner: 'MI',   last: 'RR' },
+};
+function getSeasonBonus(player) {
+  const picks = SEASON_PICKS[player]; if (!picks) return 0;
+  let pts = 0;
+  picks.top4.forEach(t => { if (SEASON_ACTUAL.top4.includes(t)) pts += 5; });
+  if (picks.last === SEASON_ACTUAL.last) pts += 5;
+  if (SEASON_ACTUAL.winner && picks.winner === SEASON_ACTUAL.winner) pts += 10;
+  return pts;
+}
+
 let matchData = [
   {num:1,teams:"RCB vs SRH",winner:"RCB",batsman:"Ishan Kishan",bowler:"Duffy",picks:{Abhijith:{team:"RCB",bat:"Jitesh",bowl:"Bhuvi"},Akhil:{team:"SRH",bat:"Abhishek",bowl:"Bhuvi"},Arijit:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Ashish:{team:"SRH",bat:"",bowl:""},Jay:{team:"RCB",bat:"Virat",bowl:"Bhuvi"},Mythy:{team:"SRH",bat:"Ishan",bowl:"Harsh Dubey"},Rahul:{team:"SRH",bat:"Ishan",bowl:"Bhuvi"},Rakesh:{team:"SRH",bat:"Ishan",bowl:"Bhuvi"},Vignan:{team:"SRH",bat:"Abhishek",bowl:"Harshal"},Yogi:{team:"SRH",bat:"Head",bowl:"Duffy"}},scores:{Abhijith:3,Akhil:-1,Arijit:3,Ashish:-1,Jay:3,Mythy:0,Rahul:0,Rakesh:0,Vignan:-1,Yogi:0}},
   {num:2,teams:"MI vs KKR",winner:"MI",batsman:"Rickelton",bowler:"Shardul",picks:{Abhijith:{team:"KKR",bat:"Raghuvamshi",bowl:"Shardul"},Akhil:{team:"MI",bat:"Suryakumar",bowl:"Bumrah"},Arijit:{team:"MI",bat:"Finn Allen",bowl:"Hardik"},Ashish:{team:"MI",bat:"Tilak Varma",bowl:"Trent Boult"},Jay:{team:"MI",bat:"SKY",bowl:"Bumrah"},Mythy:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rahul:{team:"MI",bat:"Tilak Varma",bowl:"Bumrah"},Rakesh:{team:"",bat:"",bowl:""},Vignan:{team:"MI",bat:"Finn Allen",bowl:"Varun"},Yogi:{team:"",bat:"",bowl:""}},scores:{Abhijith:0,Akhil:3,Arijit:3,Ashish:3,Jay:3,Mythy:3,Rahul:3,Rakesh:-1,Vignan:3,Yogi:-1}},
@@ -771,7 +809,7 @@ function getCumulativeScores() {
 }
 function getFinalStandings() {
   const cum = getCumulativeScores(), totals = {};
-  PLAYERS.forEach(p => { const a = cum[p]; totals[p] = a.length ? a[a.length-1] : 0; });
+  PLAYERS.forEach(p => { const a = cum[p]; totals[p] = (a.length ? a[a.length-1] : 0) + getSeasonBonus(p); });
   return totals;
 }
 function getLossCounts(data) {
@@ -788,7 +826,7 @@ function byStandings(pts, losses) {
 function getRankChanges() {
   if (matchData.length < 2) return {};
   const prevTotals = {};
-  PLAYERS.forEach(p => prevTotals[p] = 0);
+  PLAYERS.forEach(p => prevTotals[p] = getSeasonBonus(p));
   matchData.slice(0, -1).forEach(m => PLAYERS.forEach(p => prevTotals[p] = (prevTotals[p]||0) + (m.scores[p]||0)));
   const prevLosses = getLossCounts(matchData.slice(0, -1));
   const prevSorted = Object.entries(prevTotals).sort(byStandings(prevTotals, prevLosses));
@@ -835,7 +873,7 @@ function getPicksStats() {
 }
 
 function renderAll() {
-  renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView();
+  renderMetrics(); renderLeaderboard(); renderAccuracy(); renderPicksStats(); renderStreaks(); renderMatchView(); renderSeasonPredictions();
   renderInsightsStatic(); initH2H();
 }
 
@@ -879,6 +917,40 @@ function renderLeaderboard() {
       <span class="lb-delta ${dc}">${ds}</span>
     </div>`;
   }).join('');
+}
+
+function renderSeasonPredictions() {
+  const el = document.getElementById('season-preds-table');
+  if (!el) return;
+  const s = getFinalStandings();
+  const sorted = Object.entries(s).sort(byStandings(s, getLossCounts())).map(([p]) => p);
+  function pill(team, hit) {
+    const cls = hit === null ? 'sp-pill-tbd' : hit ? 'sp-pill-hit' : 'sp-pill-miss';
+    return `<span class="sp-pill ${cls}">${team}</span>`;
+  }
+  const thead = `<thead><tr>
+    <th>Player</th>
+    <th>Top 4 Picks</th>
+    <th>Winner</th>
+    <th>Last</th>
+    <th style="text-align:right">Bonus</th>
+  </tr></thead>`;
+  const tbody = sorted.map(p => {
+    const pk = SEASON_PICKS[p];
+    const top4pills = pk.top4.map(t => pill(t, SEASON_ACTUAL.top4.includes(t))).join('');
+    const winHit = SEASON_ACTUAL.winner === null ? null : pk.winner === SEASON_ACTUAL.winner;
+    const lastHit = pk.last === SEASON_ACTUAL.last;
+    const bonus = getSeasonBonus(p);
+    const bonusColor = bonus >= 15 ? 'var(--green)' : bonus >= 10 ? 'var(--accent2)' : bonus >= 5 ? 'var(--yellow)' : 'var(--muted)';
+    return `<tr>
+      <td style="font-weight:700;color:${COLORS[p]};white-space:nowrap">${p}</td>
+      <td>${top4pills}</td>
+      <td>${pill(pk.winner, winHit)}</td>
+      <td>${pill(pk.last, lastHit)}</td>
+      <td style="text-align:right"><span class="sp-bonus" style="color:${bonusColor}">+${bonus}</span></td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = thead + '<tbody>' + tbody + '</tbody>';
 }
 
 function renderAccuracy() {
